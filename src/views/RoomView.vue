@@ -5,7 +5,8 @@ import { useRoom } from '@/composables/useRoom'
 import { useAuth } from '@/composables/useAuth'
 import { usePresence } from '@/composables/usePresence'
 import { useToasts } from '@/composables/useToasts'
-import { joinRoom, setVote, revealRound, startNewRound } from '@/services/firebase/rooms'
+import { joinRoom, setVote, revealRound, startNewRound, renameTask, kickParticipant } from '@/services/firebase/rooms'
+import RoomHeader from '@/components/room/RoomHeader.vue'
 import JoinNameModal from '@/components/room/JoinNameModal.vue'
 import PokerTable from '@/components/room/PokerTable.vue'
 import Hand from '@/components/room/Hand.vue'
@@ -60,6 +61,16 @@ async function onReset() {
   catch (e) { toasts.push((e as Error).message, 'error') }
 }
 
+async function onRename(t: string) {
+  try { await renameTask(props.id, t) }
+  catch (e) { toasts.push((e as Error).message, 'error') }
+}
+
+async function onKick(targetUid: string) {
+  try { await kickParticipant(props.id, targetUid) }
+  catch (e) { toasts.push((e as Error).message, 'error') }
+}
+
 function onKey(e: KeyboardEvent) {
   const target = e.target as HTMLElement | null
   if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return
@@ -87,14 +98,22 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     </div>
 
     <div v-else-if="room.room.value" class="flex flex-col gap-6">
-      <header>
-        <h1 class="text-2xl font-bold mb-1">{{ room.room.value.name }}</h1>
-        <p style="color: var(--color-muted);" class="text-sm">
-          {{ room.totalActive.value }} online · {{ room.votedCount.value }}/{{ room.totalActive.value }} votaram
-        </p>
-      </header>
+      <RoomHeader
+        :room-name="room.room.value.name"
+        :task-title="room.room.value.round.taskTitle"
+        :is-moderator="room.isModerator.value"
+        :total-active="room.totalActive.value"
+        :voted-count="room.votedCount.value"
+        :revealed="room.room.value.round.revealed"
+        @rename="onRename"
+      />
 
-      <PokerTable :seats="room.seats.value" :revealed="room.room.value.round.revealed">
+      <PokerTable
+        :seats="room.seats.value"
+        :revealed="room.room.value.round.revealed"
+        :can-kick="room.isModerator.value"
+        @kick="onKick"
+      >
         <template #center>
           <TableCenter
             :is-moderator="room.isModerator.value"

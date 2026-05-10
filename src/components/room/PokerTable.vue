@@ -12,7 +12,8 @@ interface Seat {
   isSelf: boolean
 }
 
-const props = defineProps<{ seats: Seat[]; revealed: boolean }>()
+const props = defineProps<{ seats: Seat[]; revealed: boolean; canKick?: boolean }>()
+const emit = defineEmits<{ kick: [uid: string] }>()
 
 const positions = computed(() => {
   const n = props.seats.length || 1
@@ -43,12 +44,15 @@ const positions = computed(() => {
         }"
       >
         <PlayerSeat
+          :uid="seat.uid"
           :name="seat.name"
           :vote="seat.vote"
           :presence="seat.presence"
           :is-moderator="seat.isModerator"
           :is-self="seat.isSelf"
           :revealed="revealed"
+          :can-kick="canKick"
+          @kick="(uid: string) => emit('kick', uid)"
         />
       </div>
       <slot name="center" />
@@ -58,12 +62,15 @@ const positions = computed(() => {
       <PlayerSeat
         v-for="seat in seats"
         :key="seat.uid"
+        :uid="seat.uid"
         :name="seat.name"
         :vote="seat.vote"
         :presence="seat.presence"
         :is-moderator="seat.isModerator"
         :is-self="seat.isSelf"
         :revealed="revealed"
+        :can-kick="canKick"
+        @kick="(uid: string) => emit('kick', uid)"
       />
       <div class="w-full flex justify-center mt-4">
         <slot name="center" />

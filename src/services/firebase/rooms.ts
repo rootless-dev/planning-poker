@@ -5,6 +5,7 @@ import {
   updateDoc,
   serverTimestamp,
   Timestamp,
+  deleteField,
 } from 'firebase/firestore'
 import { getFirebase } from './index'
 import { newRoomId } from '@/lib/uuid'
@@ -128,4 +129,20 @@ export async function startNewRound(roomId: string, currentParticipantUids: stri
   }
   if (newTitle !== undefined) patch['round.taskTitle'] = newTitle
   await updateDoc(doc(db, 'rooms', roomId), patch)
+}
+
+export async function renameTask(roomId: string, title: string): Promise<void> {
+  const { db } = getFirebase()
+  await updateDoc(doc(db, 'rooms', roomId), {
+    'round.taskTitle': title,
+    ...activityPatch(),
+  })
+}
+
+export async function kickParticipant(roomId: string, uid: string): Promise<void> {
+  const { db } = getFirebase()
+  await updateDoc(doc(db, 'rooms', roomId), {
+    [`participants.${uid}`]: deleteField(),
+    ...activityPatch(),
+  })
 }
