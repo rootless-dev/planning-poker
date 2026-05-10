@@ -7,9 +7,9 @@
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview",
-    "test": "vitest run",
+    "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
-    "test:integration": "firebase emulators:exec --only firestore,auth 'vitest run --config vitest.integration.config.ts'",
+    "test:integration": "firebase emulators:exec --only firestore,auth 'vitest run --config vitest.integration.config.ts --passWithNoTests'",
     "emu": "firebase emulators:start --only firestore,auth",
     "lint:types": "vue-tsc -b --noEmit"
   },
