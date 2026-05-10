@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { ref, watch, onBeforeUnmount, computed } from 'vue'
+import { ref, watch, onBeforeUnmount, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useRoom } from '@/composables/useRoom'
 import { useAuth } from '@/composables/useAuth'
 import { usePresence } from '@/composables/usePresence'
 import { useToasts } from '@/composables/useToasts'
-import { joinRoom, setVote } from '@/services/firebase/rooms'
+import { joinRoom, setVote, revealRound, startNewRound } from '@/services/firebase/rooms'
 import JoinNameModal from '@/components/room/JoinNameModal.vue'
 import PokerTable from '@/components/room/PokerTable.vue'
 import Hand from '@/components/room/Hand.vue'
+import TableCenter from '@/components/room/TableCenter.vue'
+import ResultsPanel from '@/components/room/ResultsPanel.vue'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()
@@ -45,6 +47,26 @@ async function onPick(v: string) {
   try { await setVote(props.id, uid.value, v) }
   catch (err) { toasts.push((err as Error).message, 'error') }
 }
+
+async function onReveal() {
+  try { await revealRound(props.id) }
+  catch (e) { toasts.push((e as Error).message, 'error') }
+}
+
+async function onReset() {
+  if (!room.room.value) return
+  const uids = Object.keys(room.room.value.participants)
+  try { await startNewRound(props.id, uids) }
+  catch (e) { toasts.push((e as Error).message, 'error') }
+}
+
+function onKey(e: KeyboardEvent) {
+  if (e.key === 'r' && room.isModerator.value && room.room.value && !room.room.value.round.revealed) {
+    void onReveal()
+  }
+}
+onMounted(() => window.addEventListener('keydown', onKey))
+onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <template>
@@ -72,9 +94,14 @@ async function onPick(v: string) {
 
       <PokerTable :seats="room.seats.value" :revealed="room.room.value.round.revealed">
         <template #center>
-          <p style="color: var(--color-muted);" class="text-sm text-center">
-            {{ room.room.value.round.revealed ? 'Revelado' : 'Aguardando votos…' }}
-          </p>
+          <TableCenter
+            :is-moderator="room.isModerator.value"
+            :revealed="room.room.value.round.revealed"
+            :voted-count="room.votedCount.value"
+            :total-active="room.totalActive.value"
+            @reveal="onReveal"
+            @reset="onReset"
+          />
         </template>
       </PokerTable>
 
@@ -83,6 +110,11 @@ async function onPick(v: string) {
         :selected="room.me.value?.vote ?? null"
         :disabled="room.room.value.round.revealed"
         @select="onPick"
+      />
+
+      <ResultsPanel
+        v-if="room.room.value.round.revealed"
+        :seats="room.seats.value.map(s => ({ uid: s.uid, name: s.name, vote: s.vote }))"
       />
     </div>
 

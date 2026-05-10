@@ -107,3 +107,25 @@ export async function setVote(roomId: string, uid: string, value: string): Promi
     ...activityPatch(),
   })
 }
+
+export async function revealRound(roomId: string): Promise<void> {
+  const { db } = getFirebase()
+  await updateDoc(doc(db, 'rooms', roomId), {
+    'round.revealed': true,
+    ...activityPatch(),
+  })
+}
+
+export async function startNewRound(roomId: string, currentParticipantUids: string[], newTitle?: string): Promise<void> {
+  const { db } = getFirebase()
+  const patch: Record<string, unknown> = {
+    'round.revealed': false,
+    'round.startedAt': serverTimestamp(),
+    ...activityPatch(),
+  }
+  for (const uid of currentParticipantUids) {
+    patch[`participants.${uid}.vote`] = null
+  }
+  if (newTitle !== undefined) patch['round.taskTitle'] = newTitle
+  await updateDoc(doc(db, 'rooms', roomId), patch)
+}
