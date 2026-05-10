@@ -281,7 +281,7 @@ App.vue
 - **`PlayingCard.vue`** — única source of truth visual. Props: `value`, `state: 'idle' | 'selected' | 'back' | 'revealed'`, `size: 'sm' | 'md' | 'lg'`. Flip via CSS 3D ~400ms. Cor pastel rotativa baseada em hash do nome (mesma lógica do avatar).
 - **`Hand.vue`** — fan layout (cartas em leque) em desktop; barra horizontal scrollável em mobile. Carta selecionada ergue ~12px com tilt e cor mais saturada.
 - **`RoomHeader.vue`** — `taskTitle` com click-to-edit pro moderador; share-link como botão "Copiar link" + toast.
-- **`ResultsPanel.vue`** — slide-in quando `revealed=true`. 4 chips (Média, Moda, Mínimo, Máximo) + lista compacta "Nome → Carta". Indicador de divergência: quando `max - min ≥ 5` em decks numéricos, chip em laranja com microcopy "vale conversar".
+- **`ResultsPanel.vue`** — slide-in quando `revealed=true`. 4 chips (Média, Moda, Mínimo, Máximo) + lista compacta "Nome → Carta". Indicador de divergência: quando `max - min > 5` em decks numéricos, chip em laranja com microcopy "vale conversar". (Threshold escolhido para que 3-5-8 — progressão Fibonacci normal — não dispare como divergente.)
 - **`JoinNameModal.vue`** — modal não-fechável até preencher; pré-preenche com `localStorage.getItem('lastName')`.
 
 ### Estados visuais

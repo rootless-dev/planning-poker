@@ -726,7 +726,7 @@ git add -A
 git commit -m "feat(lib): pure libs (decks, stats, time) and shared types
 
 - decks: presets Fibonacci/T-shirt + custom builder with dedup/trim
-- stats: average/mode/min/max with divergence flag (max-min>=5)
+- stats: average/mode/min/max with divergence flag (max-min>5)
 - time: presence state machine (online <30s, absent <90s, offline)
 
 Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
