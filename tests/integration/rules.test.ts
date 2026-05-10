@@ -1,0 +1,93 @@
+import { describe, it, beforeAll, afterAll } from 'vitest'
+import { initializeTestEnvironment, type RulesTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing'
+import { readFileSync } from 'node:fs'
+import { doc, setDoc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore'
+
+let env: RulesTestEnvironment
+
+beforeAll(async () => {
+  env = await initializeTestEnvironment({
+    projectId: 'planning-poker-rules',
+    firestore: {
+      rules: readFileSync('firestore.rules', 'utf8'),
+      host: 'localhost',
+      port: 8080,
+    },
+  })
+})
+
+afterAll(async () => { await env.cleanup() })
+
+function baseRoom(modUid: string, otherUid?: string) {
+  const now = Timestamp.now()
+  const participants: Record<string, unknown> = {
+    [modUid]: { name: 'Mod', vote: null, lastSeenAt: now, joinedAt: now },
+  }
+  if (otherUid) participants[otherUid] = { name: 'Other', vote: null, lastSeenAt: now, joinedAt: now }
+  return {
+    id: 'r1',
+    name: 'Sala',
+    createdAt: serverTimestamp(),
+    lastActivityAt: serverTimestamp(),
+    expiresAt: Timestamp.fromMillis(now.toMillis() + 86_400_000),
+    moderatorUid: modUid,
+    deck: { type: 'fibonacci', values: ['1', '2', '3'] },
+    round: { taskTitle: '', revealed: false, startedAt: now },
+    participants,
+  }
+}
+
+describe('firestore.rules', () => {
+  it('proíbe escrita sem auth', async () => {
+    const ctx = env.unauthenticatedContext()
+    await assertFails(setDoc(doc(ctx.firestore(), 'rooms', 'r1'), baseRoom('mod')))
+  })
+
+  it('permite criar sala onde uid == moderatorUid', async () => {
+    const ctx = env.authenticatedContext('mod')
+    await assertSucceeds(setDoc(doc(ctx.firestore(), 'rooms', 'r1'), baseRoom('mod')))
+  })
+
+  it('proíbe criar sala forjando outro moderatorUid', async () => {
+    const ctx = env.authenticatedContext('alice')
+    await assertFails(setDoc(doc(ctx.firestore(), 'rooms', 'rNew'), baseRoom('bob')))
+  })
+
+  it('moderador pode setar round.revealed=true', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'r2'), baseRoom('mod', 'alice'))
+    })
+    const ctx = env.authenticatedContext('mod')
+    await assertSucceeds(updateDoc(doc(ctx.firestore(), 'rooms', 'r2'), { 'round.revealed': true, lastActivityAt: serverTimestamp() }))
+  })
+
+  it('participante NÃO pode setar round.revealed', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'r3'), baseRoom('mod', 'alice'))
+    })
+    const ctx = env.authenticatedContext('alice')
+    await assertFails(updateDoc(doc(ctx.firestore(), 'rooms', 'r3'), { 'round.revealed': true }))
+  })
+
+  it('participante pode atualizar próprio nó (vote/lastSeenAt)', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'r4'), baseRoom('mod', 'alice'))
+    })
+    const ctx = env.authenticatedContext('alice')
+    await assertSucceeds(updateDoc(doc(ctx.firestore(), 'rooms', 'r4'), {
+      'participants.alice.vote': '5',
+      'participants.alice.lastSeenAt': serverTimestamp(),
+      lastActivityAt: serverTimestamp(),
+    }))
+  })
+
+  it('participante NÃO pode mexer no nó de outro', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'r5'), baseRoom('mod', 'alice'))
+    })
+    const ctx = env.authenticatedContext('alice')
+    await assertFails(updateDoc(doc(ctx.firestore(), 'rooms', 'r5'), {
+      'participants.mod.vote': '5',
+    }))
+  })
+})
