@@ -12,6 +12,7 @@ const props = defineProps<{
   isSelf?: boolean
   revealed: boolean
   canKick?: boolean
+  cardSize?: 'xs' | 'sm' | 'md' | 'lg'
 }>()
 const emit = defineEmits<{ kick: [uid: string] }>()
 
@@ -25,16 +26,22 @@ const initial = computed(() => props.name.slice(0, 1).toUpperCase())
 </script>
 
 <template>
-  <div class="seat" :class="{ absent: presence === 'absent', self: isSelf }">
+  <div
+    class="seat"
+    :class="[
+      `size-${cardSize ?? 'sm'}`,
+      { absent: presence === 'absent', self: isSelf },
+    ]"
+  >
     <PlayingCard
       v-if="vote === null"
       state="idle"
-      size="sm"
+      :size="cardSize ?? 'sm'"
       value=""
       class="card-empty"
     />
-    <PlayingCard v-else-if="!revealed" state="back" size="sm" />
-    <PlayingCard v-else state="revealed" size="sm" :value="vote" />
+    <PlayingCard v-else-if="!revealed" state="back" :size="cardSize ?? 'sm'" />
+    <PlayingCard v-else state="revealed" :size="cardSize ?? 'sm'" :value="vote" />
 
     <div class="avatar numeral">
       <span>{{ initial }}</span>
@@ -66,8 +73,12 @@ const initial = computed(() => props.name.slice(0, 1).toUpperCase())
   align-items: center;
   gap: 6px;
   width: 78px;
-  transition: opacity 220ms ease;
+  transition: opacity 220ms ease, width 220ms cubic-bezier(.2,.7,.2,1);
 }
+.seat.size-xs { width: 64px; gap: 4px; }
+.seat.size-sm { width: 78px; gap: 6px; }
+.seat.size-md { width: 96px; gap: 8px; }
+.seat.size-lg { width: 120px; gap: 10px; }
 .seat.absent { opacity: 0.45; }
 .seat.self .avatar {
   outline: 2px solid color-mix(in srgb, var(--color-accent) 80%, transparent);
@@ -92,6 +103,7 @@ const initial = computed(() => props.name.slice(0, 1).toUpperCase())
   font-variation-settings: "opsz" 144, "SOFT" 30, "wght" 500;
   font-size: 0.95rem;
   color: var(--color-paper-soft);
+  transition: width 220ms cubic-bezier(.2,.7,.2,1), height 220ms cubic-bezier(.2,.7,.2,1);
   background:
     radial-gradient(circle at 30% 25%,
       color-mix(in srgb, var(--color-gold-soft) 65%, transparent) 0%,
@@ -105,6 +117,10 @@ const initial = computed(() => props.name.slice(0, 1).toUpperCase())
 .avatar > span:first-child {
   text-shadow: 0 1px 0 color-mix(in srgb, black 25%, transparent);
 }
+.size-xs .avatar { width: 28px; height: 28px; font-size: 0.78rem; }
+.size-sm .avatar { width: 36px; height: 36px; font-size: 0.95rem; }
+.size-md .avatar { width: 44px; height: 44px; font-size: 1.15rem; }
+.size-lg .avatar { width: 56px; height: 56px; font-size: 1.45rem; }
 .crown {
   position: absolute;
   top: -10px;
@@ -128,11 +144,14 @@ const initial = computed(() => props.name.slice(0, 1).toUpperCase())
   text-transform: uppercase;
   color: var(--color-paper-soft);
   text-shadow: 0 1px 2px rgb(var(--color-shadow) / 0.7);
-  max-width: 78px;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.size-xs .name { font-size: 0.6rem; letter-spacing: 0.04em; }
+.size-md .name { font-size: 0.74rem; }
+.size-lg .name { font-size: 0.82rem; letter-spacing: 0.08em; }
 
 /* Mobile (fora do feltro): texto fica em ink */
 @media (max-width: 768px) {

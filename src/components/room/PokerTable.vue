@@ -23,6 +23,13 @@ const positions = computed(() => {
     return { ...s, angle }
   })
 })
+
+const cardSize = computed<'xs' | 'sm' | 'md' | 'lg'>(() => {
+  const n = props.seats.length
+  if (n <= 4) return 'md'
+  if (n <= 8) return 'sm'
+  return 'xs'
+})
 </script>
 
 <template>
@@ -38,8 +45,8 @@ const positions = computed(() => {
         :key="seat.uid"
         class="seat-anchor"
         :style="{
-          top:  `calc(50% + sin(${seat.angle}deg) * 40%)`,
-          left: `calc(50% + cos(${seat.angle}deg) * 44%)`,
+          top:  `calc(50% + sin(${seat.angle}deg) * 32%)`,
+          left: `calc(50% + cos(${seat.angle}deg) * 42%)`,
         }"
       >
         <PlayerSeat
@@ -51,6 +58,7 @@ const positions = computed(() => {
           :is-self="seat.isSelf"
           :revealed="revealed"
           :can-kick="canKick"
+          :card-size="cardSize"
           @kick="(uid: string) => emit('kick', uid)"
         />
       </div>
@@ -75,6 +83,7 @@ const positions = computed(() => {
             :is-self="seat.isSelf"
             :revealed="revealed"
             :can-kick="canKick"
+            :card-size="cardSize"
             @kick="(uid: string) => emit('kick', uid)"
           />
         </div>
@@ -137,10 +146,10 @@ const positions = computed(() => {
   isolation: isolate;
 }
 .mobile-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 14px;
-  justify-items: center;
+  justify-content: center;
   position: relative;
   z-index: 2;
 }

@@ -4,11 +4,12 @@ import { computed } from 'vue'
 const props = defineProps<{
   value?: string | null
   state: 'idle' | 'selected' | 'back' | 'revealed'
-  size?: 'sm' | 'md' | 'lg'
+  size?: 'xs' | 'sm' | 'md' | 'lg'
 }>()
 
 const sizeMap = {
-  sm: { box: 'w-10 h-14',  index: 'text-[0.55rem]', main: 'text-base' },
+  xs: { box: 'w-9 h-12',   index: 'text-[0.5rem]',  main: 'text-sm' },
+  sm: { box: 'w-12 h-16',  index: 'text-[0.6rem]',  main: 'text-lg' },
   md: { box: 'w-16 h-22',  index: 'text-[0.7rem]',  main: 'text-2xl' },
   lg: { box: 'w-22 h-32',  index: 'text-[0.78rem]', main: 'text-[2.4rem]' },
 } as const

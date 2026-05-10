@@ -207,12 +207,14 @@ const dots = (count: number, total: number) =>
 
 .post-reveal {
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
-  width: 100%;
 }
 .post-reveal .house-btn {
   justify-content: center;
+  padding: 8px 14px;
+  font-size: 0.92rem;
 }
 </style>
