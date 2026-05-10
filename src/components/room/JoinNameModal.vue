@@ -18,7 +18,7 @@ function go() {
 </script>
 
 <template>
-  <Modal :open="open" :closable="false" title="Como devemos te chamar?">
+  <Modal :open="open" :closable="false" kicker="Sala" title="Como devemos te chamar?">
     <form @submit.prevent="go" class="flex flex-col gap-3">
       <TextField v-model="name" placeholder="Seu nome" :maxlength="30" />
       <PrimaryButton type="submit" :disabled="name.trim().length === 0">Entrar</PrimaryButton>

@@ -6,24 +6,93 @@ const emit = defineEmits<{ select: [value: string] }>()
 </script>
 
 <template>
-  <div class="w-full flex justify-start sm:justify-center px-2 overflow-x-auto" style="scroll-snap-type: x mandatory;">
-    <div class="flex gap-2 py-3">
-      <button
-        v-for="v in values"
-        :key="v"
-        type="button"
-        :disabled="disabled"
-        @click="emit('select', v)"
-        class="cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
-        style="scroll-snap-align: center;"
-        :aria-pressed="selected === v"
-      >
-        <PlayingCard
-          :value="v"
-          size="lg"
-          :state="selected === v ? 'selected' : 'idle'"
-        />
-      </button>
+  <div class="hand-wrap">
+    <p class="kicker hand-label">Sua mão</p>
+    <div class="hand-rail">
+      <div class="hand-track">
+        <button
+          v-for="(v, i) in values"
+          :key="v"
+          type="button"
+          :disabled="disabled"
+          @click="emit('select', v)"
+          class="hand-btn"
+          :class="{ picked: selected === v, dim: !!selected && selected !== v }"
+          :style="{ '--i': i }"
+          :aria-pressed="selected === v"
+        >
+          <PlayingCard
+            :value="v"
+            size="lg"
+            :state="selected === v ? 'selected' : 'idle'"
+          />
+        </button>
+      </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.hand-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  padding-top: 8px;
+}
+
+.hand-label {
+  align-self: center;
+}
+
+.hand-rail {
+  width: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding: 8px 12px 24px;
+}
+.hand-rail::-webkit-scrollbar { display: none; }
+
+.hand-track {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  min-width: max-content;
+  margin: 0 auto;
+}
+
+.hand-btn {
+  scroll-snap-align: center;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  transition:
+    transform 260ms cubic-bezier(.2,.7,.2,1),
+    opacity 260ms ease,
+    filter 260ms ease;
+}
+.hand-btn:hover:not(:disabled):not(.picked) {
+  transform: translateY(-10px);
+}
+.hand-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+.hand-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.hand-btn.dim {
+  opacity: 0.45;
+  filter: saturate(0.7);
+}
+
+/* No mobile o leque fica mais compacto */
+@media (max-width: 768px) {
+  .hand-track { gap: 4px; }
+}
+</style>
