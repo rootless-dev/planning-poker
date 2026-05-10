@@ -1,0 +1,42 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /rooms/{roomId} {
+
+      allow read: if request.auth != null;
+
+      allow create: if request.auth != null
+                    && request.auth.uid == request.resource.data.moderatorUid
+                    && request.resource.data.id == roomId;
+
+      allow update: if request.auth != null && (
+        isModerator()
+        || isSelfUpdatingOwnParticipant()
+      );
+
+      allow delete: if request.auth != null && resource.data.moderatorUid == request.auth.uid;
+
+      function isModerator() {
+        return resource.data.moderatorUid == request.auth.uid;
+      }
+
+      function isSelfUpdatingOwnParticipant() {
+        let allowedRootKeys = ['participants', 'lastActivityAt', 'expiresAt'].toSet();
+        let changedRoot = request.resource.data.diff(resource.data).affectedKeys();
+        let onlyAllowedRoot = changedRoot.hasOnly(allowedRootKeys);
+
+        let myKey = request.auth.uid;
+        let oldParticipants = resource.data.participants;
+        let newParticipants = request.resource.data.participants;
+        let participantKeysChanged = newParticipants.diff(oldParticipants).affectedKeys();
+
+        let onlySelfKeyChanged = participantKeysChanged.hasOnly([myKey].toSet());
+
+        let stillPresent = newParticipants.keys().hasAll([myKey]);
+
+        return onlyAllowedRoot && onlySelfKeyChanged && stillPresent;
+      }
+    }
+  }
+}
