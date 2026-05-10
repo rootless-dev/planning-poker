@@ -1,6 +1,8 @@
 import {
   doc,
   setDoc,
+  onSnapshot,
+  updateDoc,
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore'
@@ -51,4 +53,50 @@ export async function createRoom(input: CreateRoomInput): Promise<string> {
 
   await setDoc(doc(db, 'rooms', id), room)
   return id
+}
+
+const TTL_MS = 24 * 60 * 60 * 1000
+
+function activityPatch() {
+  return {
+    lastActivityAt: serverTimestamp(),
+    expiresAt: Timestamp.fromMillis(Date.now() + TTL_MS),
+  }
+}
+
+export type Unsubscribe = () => void
+
+export function subscribeToRoom(
+  roomId: string,
+  onChange: (room: Room | null) => void,
+  onError?: (err: Error) => void,
+): Unsubscribe {
+  const { db } = getFirebase()
+  return onSnapshot(
+    doc(db, 'rooms', roomId),
+    (snap) => onChange(snap.exists() ? (snap.data() as Room) : null),
+    (err) => onError?.(err),
+  )
+}
+
+export async function joinRoom(roomId: string, uid: string, name: string): Promise<void> {
+  const { db } = getFirebase()
+  const now = Timestamp.now()
+  await updateDoc(doc(db, 'rooms', roomId), {
+    [`participants.${uid}`]: {
+      name: name.trim(),
+      vote: null,
+      lastSeenAt: now,
+      joinedAt: now,
+    },
+    ...activityPatch(),
+  })
+}
+
+export async function heartbeat(roomId: string, uid: string): Promise<void> {
+  const { db } = getFirebase()
+  await updateDoc(doc(db, 'rooms', roomId), {
+    [`participants.${uid}.lastSeenAt`]: serverTimestamp(),
+    ...activityPatch(),
+  })
 }
