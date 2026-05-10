@@ -1,6 +1,9 @@
+<script setup lang="ts">
+import HeroSection from '@/components/home/HeroSection.vue'
+import HomeFooter from '@/components/home/HomeFooter.vue'
+</script>
+
 <template>
-  <main class="p-8">
-    <h1 class="text-2xl font-bold">Planning Poker</h1>
-    <p class="text-muted">Setup OK 👋</p>
-  </main>
+  <HeroSection />
+  <HomeFooter />
 </template>
