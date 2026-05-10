@@ -14,16 +14,46 @@ function onInput(e: Event) {
 </script>
 
 <template>
-  <label class="block">
-    <span v-if="label" class="block text-sm font-semibold mb-1" style="color: var(--color-muted);">{{ label }}</span>
+  <label class="field">
+    <span v-if="label" class="field-label kicker">{{ label }}</span>
     <input
       :value="props.modelValue"
       :placeholder="placeholder"
       :required="required"
       :maxlength="maxlength"
       @input="onInput"
-      class="w-full rounded-full px-4 py-2.5 text-sm outline-none focus:ring-2"
-      style="background: var(--color-surface); color: var(--color-ink); border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);"
+      class="field-input"
     />
   </label>
 </template>
+
+<style scoped>
+.field {
+  display: block;
+}
+.field-label {
+  display: block;
+  margin-bottom: 6px;
+}
+.field-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-variation-settings: "opsz" 14, "SOFT" 60, "wght" 400;
+  font-size: 1rem;
+  color: var(--color-ink);
+  background: var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.field-input::placeholder {
+  color: color-mix(in srgb, var(--color-ink) 40%, transparent);
+}
+.field-input:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 25%, transparent);
+}
+</style>

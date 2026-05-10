@@ -12,6 +12,9 @@ import PokerTable from '@/components/room/PokerTable.vue'
 import Hand from '@/components/room/Hand.vue'
 import TableCenter from '@/components/room/TableCenter.vue'
 import ResultsPanel from '@/components/room/ResultsPanel.vue'
+import Modal from '@/components/ui/Modal.vue'
+import PrimaryButton from '@/components/ui/PrimaryButton.vue'
+import GhostButton from '@/components/ui/GhostButton.vue'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()
@@ -24,6 +27,12 @@ onBeforeUnmount(room.dispose)
 
 const showJoin = computed(() => !room.loading.value && !room.notFound.value && !room.inRoom.value)
 usePresence(props.id, uid, computed(() => room.inRoom.value))
+
+const showResults = ref(false)
+watch(
+  () => room.room.value?.round.revealed ?? false,
+  (revealed) => { showResults.value = revealed },
+)
 
 const wasInRoom = ref(false)
 watch(() => room.inRoom.value, (now) => {
@@ -83,21 +92,26 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <template>
-  <main class="px-4 py-8 max-w-3xl mx-auto">
-    <p v-if="room.loading.value" style="color: var(--color-muted);">Carregando…</p>
-
-    <div v-else-if="room.notFound.value" class="text-center mt-10">
-      <h1 class="text-2xl font-bold mb-2">Essa sala não existe ou expirou</h1>
-      <p style="color: var(--color-muted);" class="mb-4">Voltar para a home e criar uma nova.</p>
-      <button class="underline" @click="router.push({ name: 'home' })" style="color: var(--color-brand);">Ir para home</button>
+  <main class="room-main">
+    <div v-if="room.loading.value" class="room-state">
+      <span class="kicker">Carregando</span>
+      <p class="state-line">Distribuindo o baralho…</p>
     </div>
 
-    <div v-else-if="room.error.value" class="text-center mt-10">
-      <h1 class="text-2xl font-bold mb-2">Algo deu errado</h1>
-      <p style="color: var(--color-muted);">{{ room.error.value }}</p>
+    <div v-else-if="room.notFound.value" class="room-state">
+      <span class="kicker">Sala fechada</span>
+      <h1 class="state-title">Essa mesa não existe ou expirou</h1>
+      <p class="state-line">Volte para a entrada e abra uma nova rodada.</p>
+      <button class="state-link" @click="router.push({ name: 'home' })">Ir para a home →</button>
     </div>
 
-    <div v-else-if="room.room.value" class="flex flex-col gap-6">
+    <div v-else-if="room.error.value" class="room-state">
+      <span class="kicker">Erro</span>
+      <h1 class="state-title">Algo deu errado</h1>
+      <p class="state-line">{{ room.error.value }}</p>
+    </div>
+
+    <div v-else-if="room.room.value" class="room-stack">
       <RoomHeader
         :room-name="room.room.value.name"
         :task-title="room.room.value.round.taskTitle"
@@ -120,8 +134,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
             :revealed="room.room.value.round.revealed"
             :voted-count="room.votedCount.value"
             :total-active="room.totalActive.value"
+            :results-open="showResults"
             @reveal="onReveal"
             @reset="onReset"
+            @show-results="showResults = true"
           />
         </template>
       </PokerTable>
@@ -133,12 +149,77 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         @select="onPick"
       />
 
+    </div>
+
+    <Modal
+      v-if="room.room.value"
+      :open="showResults && room.room.value.round.revealed"
+      kicker="Veredicto"
+      title="A mesa fala"
+      size="lg"
+      @close="showResults = false"
+    >
       <ResultsPanel
-        v-if="room.room.value.round.revealed"
+        embedded
         :seats="room.seats.value.map(s => ({ uid: s.uid, name: s.name, vote: s.vote }))"
       />
-    </div>
+      <template #footer>
+        <GhostButton @click="showResults = false">Fechar</GhostButton>
+        <PrimaryButton v-if="room.isModerator.value" @click="onReset">Nova rodada</PrimaryButton>
+      </template>
+    </Modal>
 
     <JoinNameModal :open="showJoin" @submit="onJoin" />
   </main>
 </template>
+
+<style scoped>
+.room-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+}
+
+.room-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.room-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  padding: 80px 24px;
+}
+.state-title {
+  font-family: var(--font-display);
+  font-variation-settings: "opsz" 144, "SOFT" 30, "wght" 500;
+  font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.state-line {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-variation-settings: "opsz" 14, "SOFT" 80, "wght" 400;
+  color: color-mix(in srgb, var(--color-ink) 70%, transparent);
+}
+.state-link {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+  margin-top: 6px;
+  cursor: pointer;
+}
+.state-link:hover {
+  color: var(--color-gold-deep);
+}
+</style>

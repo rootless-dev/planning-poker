@@ -26,21 +26,20 @@ const positions = computed(() => {
 </script>
 
 <template>
-  <div class="relative w-full mx-auto" style="aspect-ratio: 16 / 9; max-width: 720px;">
-    <div
-      class="hidden md:block absolute"
-      style="top: 50%; left: 50%; transform: translate(-50%,-50%); width: 50%; height: 50%; background: color-mix(in srgb, var(--color-brand) 8%, transparent); border-radius: 50%; border: 1px dashed color-mix(in srgb, var(--color-ink) 18%, transparent);"
-    />
+  <div class="table-wrap">
+    <!-- Mesa (somente desktop) -->
+    <div class="table-frame felt-surface hidden md:block">
+      <!-- Pista interna oval -->
+      <div class="inner-rail" aria-hidden="true"></div>
 
-    <div class="hidden md:block">
+      <!-- Seats em volta -->
       <div
         v-for="seat in positions"
         :key="seat.uid"
-        class="absolute"
+        class="seat-anchor"
         :style="{
-          top: `calc(50% + sin(${seat.angle}deg) * 38%)`,
-          left: `calc(50% + cos(${seat.angle}deg) * 42%)`,
-          transform: 'translate(-50%, -50%)',
+          top:  `calc(50% + sin(${seat.angle}deg) * 40%)`,
+          left: `calc(50% + cos(${seat.angle}deg) * 44%)`,
         }"
       >
         <PlayerSeat
@@ -55,31 +54,101 @@ const positions = computed(() => {
           @kick="(uid: string) => emit('kick', uid)"
         />
       </div>
-      <div
-        class="absolute"
-        style="top: 50%; left: 50%; transform: translate(-50%, -50%);"
-      >
+
+      <div class="center-anchor">
         <slot name="center" />
       </div>
     </div>
 
-    <div class="md:hidden flex flex-wrap justify-center gap-4 pt-4">
-      <PlayerSeat
-        v-for="seat in seats"
-        :key="seat.uid"
-        :uid="seat.uid"
-        :name="seat.name"
-        :vote="seat.vote"
-        :presence="seat.presence"
-        :is-moderator="seat.isModerator"
-        :is-self="seat.isSelf"
-        :revealed="revealed"
-        :can-kick="canKick"
-        @kick="(uid: string) => emit('kick', uid)"
-      />
-      <div class="w-full flex justify-center mt-4">
-        <slot name="center" />
+    <!-- Mobile: lista compacta + center embaixo -->
+    <div class="md:hidden">
+      <div class="mobile-felt felt-surface">
+        <div class="mobile-grid">
+          <PlayerSeat
+            v-for="seat in seats"
+            :key="seat.uid"
+            :uid="seat.uid"
+            :name="seat.name"
+            :vote="seat.vote"
+            :presence="seat.presence"
+            :is-moderator="seat.isModerator"
+            :is-self="seat.isSelf"
+            :revealed="revealed"
+            :can-kick="canKick"
+            @kick="(uid: string) => emit('kick', uid)"
+          />
+        </div>
+        <div class="mobile-center">
+          <slot name="center" />
+        </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.table-wrap {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.table-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 50% / 36%;
+  isolation: isolate;
+}
+
+.inner-rail {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 56%;
+  height: 56%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px dashed color-mix(in srgb, var(--color-gold-soft) 45%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-felt-deep) 50%, transparent);
+  pointer-events: none;
+}
+
+.seat-anchor {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.center-anchor {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+}
+
+/* — Mobile — */
+.mobile-felt {
+  position: relative;
+  border-radius: 28px;
+  padding: 22px 16px 18px;
+  isolation: isolate;
+}
+.mobile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: 14px;
+  justify-items: center;
+  position: relative;
+  z-index: 2;
+}
+.mobile-center {
+  position: relative;
+  z-index: 2;
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+}
+</style>

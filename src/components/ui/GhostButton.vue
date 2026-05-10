@@ -6,10 +6,42 @@ defineProps<{ disabled?: boolean; type?: 'button' | 'submit' }>()
   <button
     :type="type ?? 'button'"
     :disabled="disabled"
-    class="inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors"
-    style="border: 1px solid color-mix(in srgb, var(--color-ink) 20%, transparent); color: var(--color-ink);"
-    :class="disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[color-mix(in_srgb,var(--color-ink)_8%,transparent)]'"
+    class="ghost-btn"
+    :class="{ disabled }"
   >
     <slot />
   </button>
 </template>
+
+<style scoped>
+.ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 22%, transparent);
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+.ghost-btn:hover:not(.disabled) {
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--color-accent) 70%, transparent);
+}
+.ghost-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+.ghost-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+</style>
