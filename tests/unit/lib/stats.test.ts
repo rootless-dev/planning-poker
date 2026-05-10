@@ -34,7 +34,9 @@ describe('computeStats', () => {
     })
   })
 
-  it('marca divergent quando max - min >= 5', () => {
+  it('marca divergent quando max - min > 5 (boundary inclusivo no 5)', () => {
+    expect(computeStats(['3', '8']).divergent).toBe(false)   // diff=5 → não divergente
+    expect(computeStats(['2', '8']).divergent).toBe(true)    // diff=6 → divergente
     expect(computeStats(['1', '8']).divergent).toBe(true)
     expect(computeStats(['3', '5', '8']).divergent).toBe(false)
     expect(computeStats(['1', '13']).divergent).toBe(true)

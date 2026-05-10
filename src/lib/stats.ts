@@ -27,21 +27,16 @@ export function computeStats(votes: string[]): Stats {
   const divergent = min !== null && max !== null && max - min > 5
 
   const counts = new Map<string, number>()
-  const firstSeen = new Map<string, number>()
-  votes.forEach((v, i) => {
+  for (const v of votes) {
     counts.set(v, (counts.get(v) ?? 0) + 1)
-    if (!firstSeen.has(v)) firstSeen.set(v, i)
-  })
+  }
 
   let mode: string | null = null
   let bestCount = 0
-  let bestFirstSeen = Infinity
   for (const [value, count] of counts) {
-    const seen = firstSeen.get(value) ?? Infinity
-    if (count > bestCount || (count === bestCount && seen < bestFirstSeen)) {
+    if (count > bestCount) {
       mode = value
       bestCount = count
-      bestFirstSeen = seen
     }
   }
 
