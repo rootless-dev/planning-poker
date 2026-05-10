@@ -55,7 +55,12 @@ const positions = computed(() => {
           @kick="(uid: string) => emit('kick', uid)"
         />
       </div>
-      <slot name="center" />
+      <div
+        class="absolute"
+        style="top: 50%; left: 50%; transform: translate(-50%, -50%);"
+      >
+        <slot name="center" />
+      </div>
     </div>
 
     <div class="md:hidden flex flex-wrap justify-center gap-4 pt-4">
