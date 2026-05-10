@@ -98,3 +98,12 @@ export async function heartbeat(roomId: string, uid: string): Promise<void> {
     ...activityPatch(),
   })
 }
+
+export async function setVote(roomId: string, uid: string, value: string): Promise<void> {
+  const { db } = getFirebase()
+  await updateDoc(doc(db, 'rooms', roomId), {
+    [`participants.${uid}.vote`]: value,
+    [`participants.${uid}.lastSeenAt`]: serverTimestamp(),
+    ...activityPatch(),
+  })
+}
