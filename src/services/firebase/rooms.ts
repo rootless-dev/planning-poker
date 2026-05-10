@@ -10,7 +10,7 @@ import { getFirebase } from './index'
 import { newRoomId } from '@/lib/uuid'
 import type { Deck, Room } from '@/types/room'
 
-const TTL_HOURS = 24
+const TTL_MS = 24 * 60 * 60 * 1000
 
 interface CreateRoomInput {
   name: string
@@ -23,7 +23,7 @@ export async function createRoom(input: CreateRoomInput): Promise<string> {
   const { db } = getFirebase()
   const id = newRoomId()
   const now = Timestamp.now()
-  const expiresAt = Timestamp.fromMillis(now.toMillis() + TTL_HOURS * 60 * 60 * 1000)
+  const expiresAt = Timestamp.fromMillis(now.toMillis() + TTL_MS)
 
   const room: Omit<Room, 'createdAt' | 'lastActivityAt'> & {
     createdAt: ReturnType<typeof serverTimestamp>
@@ -54,8 +54,6 @@ export async function createRoom(input: CreateRoomInput): Promise<string> {
   await setDoc(doc(db, 'rooms', id), room)
   return id
 }
-
-const TTL_MS = 24 * 60 * 60 * 1000
 
 function activityPatch() {
   return {
