@@ -24,6 +24,7 @@ const submitting = ref(false)
 const canSubmit = computed(() =>
   roomName.value.trim().length > 0
   && moderatorName.value.trim().length > 0
+  && (deckType.value !== 'custom' || customRaw.value.trim().length > 0)
   && uid.value !== null
   && !submitting.value,
 )

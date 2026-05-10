@@ -40,7 +40,9 @@ function baseRoom(modUid: string, otherUid?: string) {
 describe('firestore.rules', () => {
   it('proíbe escrita sem auth', async () => {
     const ctx = env.unauthenticatedContext()
-    await assertFails(setDoc(doc(ctx.firestore(), 'rooms', 'r1'), baseRoom('mod')))
+    const room = baseRoom('mod')
+    room.id = 'rUnauth'
+    await assertFails(setDoc(doc(ctx.firestore(), 'rooms', 'rUnauth'), room))
   })
 
   it('permite criar sala onde uid == moderatorUid', async () => {
@@ -50,7 +52,9 @@ describe('firestore.rules', () => {
 
   it('proíbe criar sala forjando outro moderatorUid', async () => {
     const ctx = env.authenticatedContext('alice')
-    await assertFails(setDoc(doc(ctx.firestore(), 'rooms', 'rNew'), baseRoom('bob')))
+    const room = baseRoom('bob')
+    room.id = 'rForge'
+    await assertFails(setDoc(doc(ctx.firestore(), 'rooms', 'rForge'), room))
   })
 
   it('moderador pode setar round.revealed=true', async () => {
