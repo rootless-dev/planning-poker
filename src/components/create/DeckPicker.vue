@@ -28,8 +28,9 @@ function onSelectChange(e: Event) {
 
 <template>
   <div class="deck-picker">
-    <label class="field-label kicker">Baralho</label>
+    <label for="deck-type" class="field-label kicker">Baralho</label>
     <select
+      id="deck-type"
       class="deck-select focus-gold"
       :value="modelValue"
       @change="onSelectChange"
@@ -64,7 +65,7 @@ function onSelectChange(e: Event) {
   font-size: 1rem;
   color: var(--color-ink);
   background-color: var(--color-surface);
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'><path fill='%2314241b' d='M3 5l4 4 4-4z'/></svg>");
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14' fill='currentColor'><path d='M3 5l4 4 4-4z'/></svg>");
   background-repeat: no-repeat;
   background-position: right 14px center;
   border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
@@ -72,7 +73,7 @@ function onSelectChange(e: Event) {
   cursor: pointer;
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
-.deck-select:focus {
+.deck-select:focus-visible {
   border-color: var(--color-accent);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 25%, transparent);
 }
