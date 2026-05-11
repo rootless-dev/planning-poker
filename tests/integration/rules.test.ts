@@ -94,4 +94,56 @@ describe('firestore.rules', () => {
       'participants.mod.vote': '5',
     }))
   })
+
+  it('participante pode escrever próprio lastEmoji', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'rE1'), baseRoom('mod', 'alice'))
+    })
+    const ctx = env.authenticatedContext('alice')
+    await assertSucceeds(updateDoc(doc(ctx.firestore(), 'rooms', 'rE1'), {
+      'participants.alice.lastEmoji': { value: '🎉', sentAt: serverTimestamp() },
+      lastActivityAt: serverTimestamp(),
+      expiresAt: Timestamp.fromMillis(Date.now() + 86_400_000),
+    }))
+  })
+
+  it('participante NÃO pode escrever lastEmoji em outro uid', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'rE2'), baseRoom('mod', 'alice'))
+    })
+    const ctx = env.authenticatedContext('alice')
+    await assertFails(updateDoc(doc(ctx.firestore(), 'rooms', 'rE2'), {
+      'participants.mod.lastEmoji': { value: '🎉', sentAt: serverTimestamp() },
+    }))
+  })
+
+  it('rejeita lastEmoji com value > 16 chars', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'rE3'), baseRoom('mod', 'alice'))
+    })
+    const ctx = env.authenticatedContext('alice')
+    await assertFails(updateDoc(doc(ctx.firestore(), 'rooms', 'rE3'), {
+      'participants.alice.lastEmoji': { value: 'x'.repeat(17), sentAt: serverTimestamp() },
+      lastActivityAt: serverTimestamp(),
+    }))
+  })
+
+  it('rejeita segundo lastEmoji dentro do cooldown de 2s', async () => {
+    const past = Timestamp.fromMillis(Date.now() - 500) // 0.5s atrás
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'rE4'), {
+        ...baseRoom('mod', 'alice'),
+        participants: {
+          mod: { name: 'Mod', vote: null, lastSeenAt: past, joinedAt: past },
+          alice: { name: 'Alice', vote: null, lastSeenAt: past, joinedAt: past,
+                   lastEmoji: { value: '🎉', sentAt: past } },
+        },
+      })
+    })
+    const ctx = env.authenticatedContext('alice')
+    await assertFails(updateDoc(doc(ctx.firestore(), 'rooms', 'rE4'), {
+      'participants.alice.lastEmoji': { value: '🔥', sentAt: serverTimestamp() },
+      lastActivityAt: serverTimestamp(),
+    }))
+  })
 })

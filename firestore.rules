@@ -12,6 +12,7 @@ service cloud.firestore {
 
       allow update: if request.auth != null && (
         isModerator()
+        || isSelfBroadcastingEmoji()
         || isSelfUpdatingOwnParticipant()
       );
 
@@ -35,7 +36,31 @@ service cloud.firestore {
 
         let stillPresent = newParticipants.keys().hasAll([myKey]);
 
-        return onlyAllowedRoot && onlySelfKeyChanged && stillPresent;
+        // Exclude pure lastEmoji changes — those must go through isSelfBroadcastingEmoji
+        let myMineChanged = newParticipants[myKey].diff(oldParticipants[myKey]).affectedKeys();
+        let notOnlyEmoji = !myMineChanged.hasOnly(['lastEmoji'].toSet());
+
+        return onlyAllowedRoot && onlySelfKeyChanged && stillPresent && notOnlyEmoji;
+      }
+
+      function isSelfBroadcastingEmoji() {
+        let uid = request.auth.uid;
+        let oldP = resource.data.participants;
+        let newP = request.resource.data.participants;
+        let oldMine = oldP[uid];
+        let newMine = newP[uid];
+        let evt = newMine.lastEmoji;
+
+        let rootOk = request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['participants', 'lastActivityAt', 'expiresAt'].toSet());
+        let selfOnly = newP.diff(oldP).affectedKeys().hasOnly([uid].toSet());
+        let emojiOnly = newMine.diff(oldMine).affectedKeys().hasOnly(['lastEmoji'].toSet());
+        let shapeOk = evt.value is string && evt.value.size() >= 1
+          && evt.value.size() <= 16 && evt.sentAt == request.time;
+        let coolOk = !('lastEmoji' in oldMine)
+          || oldMine.lastEmoji.sentAt + duration.value(2, 's') < request.time;
+
+        return rootOk && selfOnly && emojiOnly && shapeOk && coolOk;
       }
     }
   }
