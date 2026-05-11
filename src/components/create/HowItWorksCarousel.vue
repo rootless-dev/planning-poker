@@ -146,21 +146,28 @@ onBeforeUnmount(() => {
   overflow: hidden;
   min-height: 380px;
 }
-.scenes { position: relative; min-height: 280px; }
+.scenes {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 280px;
+}
 .scene {
-  position: absolute;
-  inset: 0;
+  grid-area: 1 / 1;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  transition: opacity 250ms ease;
   opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
   pointer-events: none;
+  will-change: opacity, transform;
 }
 .scene[aria-hidden="false"] {
   opacity: 1;
+  transform: translateY(0);
   pointer-events: auto;
-  position: relative;
 }
 .scene-title {
   font-family: var(--font-display);
@@ -176,12 +183,11 @@ onBeforeUnmount(() => {
   max-width: 44ch;
 }
 .scene-art {
-  margin-top: auto;
+  margin-top: 18px;
   display: flex;
   gap: 12px;
   justify-content: flex-start;
   align-items: flex-end;
-  padding-top: 12px;
 }
 .card {
   width: 56px; height: 80px;
@@ -191,10 +197,15 @@ onBeforeUnmount(() => {
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-display); font-weight: 700; font-size: 1.2rem;
   box-shadow: 0 4px 12px rgb(var(--color-shadow) / 0.35), inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  transform: translateY(14px) rotate(0);
+  transition:
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 320ms ease;
+  will-change: transform;
 }
-.card.t1  { transform: rotate(-6deg); }
-.card.t3  { transform: rotate(6deg); }
-.card.mid { transform: translateY(-4px); }
+.scene[aria-hidden="false"] .card.t1  { transform: translateY(0) rotate(-6deg); transition-delay: 80ms; }
+.scene[aria-hidden="false"] .card.mid { transform: translateY(-4px) rotate(0);   transition-delay: 160ms; }
+.scene[aria-hidden="false"] .card.t3  { transform: translateY(0) rotate(6deg);  transition-delay: 240ms; }
 
 .dots { display: flex; gap: 8px; justify-content: center; margin-top: 18px; }
 .dot {
@@ -218,6 +229,8 @@ onBeforeUnmount(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scene { transition: none; }
+  .scene,
+  .card { transition: none; }
+  .scene { transform: none; }
 }
 </style>
