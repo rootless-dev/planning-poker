@@ -7,11 +7,17 @@ export interface Deck {
   values: string[]
 }
 
+export interface EmojiEvent {
+  value: string
+  sentAt: Timestamp
+}
+
 export interface Participant {
   name: string
   vote: string | null
   lastSeenAt: Timestamp
   joinedAt: Timestamp
+  lastEmoji?: EmojiEvent
 }
 
 export interface Round {
