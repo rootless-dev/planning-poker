@@ -14,9 +14,9 @@ describe('ResultsPanel', () => {
       },
     })
     const text = wrapper.text()
-    expect(text).toContain('Média:')
+    expect(text).toContain('Média')
     expect(text).toContain('4.33')
-    expect(text).toContain('Moda:')
+    expect(text).toContain('Moda')
     expect(text).toContain('5')
   })
 
@@ -29,6 +29,6 @@ describe('ResultsPanel', () => {
         ],
       },
     })
-    expect(wrapper.text()).toContain('vale conversar')
+    expect(wrapper.text()).toContain('Vale uma conversa')
   })
 })

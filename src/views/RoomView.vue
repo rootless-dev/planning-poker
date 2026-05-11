@@ -15,6 +15,8 @@ import ResultsPanel from '@/components/room/ResultsPanel.vue'
 import Modal from '@/components/ui/Modal.vue'
 import PrimaryButton from '@/components/ui/PrimaryButton.vue'
 import GhostButton from '@/components/ui/GhostButton.vue'
+import EmojiPanel from '@/components/room/EmojiPanel.vue'
+import { useEmojiBroadcast } from '@/composables/useEmojiBroadcast'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()
@@ -27,6 +29,20 @@ onBeforeUnmount(room.dispose)
 
 const showJoin = computed(() => !room.loading.value && !room.notFound.value && !room.inRoom.value)
 usePresence(props.id, uid, computed(() => room.inRoom.value))
+
+const emoji = useEmojiBroadcast({
+  room: computed(() => room.room.value),
+  myUid: uid,
+  roomId: computed(() => props.id),
+})
+
+const emojiPanelOpen = ref(false)
+function openEmojiPanel() { emojiPanelOpen.value = true }
+function closeEmojiPanel() { emojiPanelOpen.value = false }
+async function onSelectEmoji(value: string) {
+  await emoji.sendEmoji(value)
+  closeEmojiPanel()
+}
 
 const showResults = ref(false)
 watch(
@@ -83,12 +99,30 @@ async function onKick(targetUid: string) {
 function onKey(e: KeyboardEvent) {
   const target = e.target as HTMLElement | null
   if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return
+  if (e.key === 'Escape' && emojiPanelOpen.value) {
+    closeEmojiPanel()
+    return
+  }
   if (e.key === 'r' && room.isModerator.value && room.room.value && !room.room.value.round.revealed) {
     void onReveal()
   }
 }
-onMounted(() => window.addEventListener('keydown', onKey))
-onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
+
+function onDocClick(e: MouseEvent) {
+  if (!emojiPanelOpen.value) return
+  const t = e.target as HTMLElement
+  if (t.closest('.emoji-panel') || t.closest('.kick-trigger')) return
+  closeEmojiPanel()
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKey)
+  window.addEventListener('click', onDocClick)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKey)
+  window.removeEventListener('click', onDocClick)
+})
 </script>
 
 <template>
@@ -126,7 +160,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
         :seats="room.seats.value"
         :revealed="room.room.value.round.revealed"
         :can-kick="room.isModerator.value"
+        :active-bubble="emoji.activeBubble.value"
         @kick="onKick"
+        @open-emoji-panel="openEmojiPanel"
+        @emoji-bubble-done="emoji.clearBubble"
       >
         <template #center>
           <TableCenter
@@ -170,6 +207,13 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     </Modal>
 
     <JoinNameModal :open="showJoin" @submit="onJoin" />
+
+    <EmojiPanel
+      v-if="emojiPanelOpen"
+      :cooldown-remaining-ms="emoji.cooldownRemainingMs.value"
+      @select="onSelectEmoji"
+      @close="closeEmojiPanel"
+    />
   </main>
 </template>
 

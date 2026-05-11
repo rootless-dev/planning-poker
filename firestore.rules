@@ -12,6 +12,7 @@ service cloud.firestore {
 
       allow update: if request.auth != null && (
         isModerator()
+        || isSelfBroadcastingEmoji()
         || isSelfUpdatingOwnParticipant()
       );
 
@@ -35,7 +36,34 @@ service cloud.firestore {
 
         let stillPresent = newParticipants.keys().hasAll([myKey]);
 
-        return onlyAllowedRoot && onlySelfKeyChanged && stillPresent;
+        // Exclude pure lastEmoji changes — those must go through isSelfBroadcastingEmoji.
+        // Only applies when the participant already existed (i.e., not a fresh join).
+        let onlyEmojiChanged = (myKey in oldParticipants)
+          && newParticipants[myKey].diff(oldParticipants[myKey]).affectedKeys().hasOnly(['lastEmoji'].toSet());
+
+        return onlyAllowedRoot && onlySelfKeyChanged && stillPresent && !onlyEmojiChanged;
+      }
+
+      function isSelfBroadcastingEmoji() {
+        let uid = request.auth.uid;
+        let oldP = resource.data.participants;
+        let newP = request.resource.data.participants;
+        let oldMine = oldP[uid];
+        let newMine = newP[uid];
+        let evt = newMine.lastEmoji;
+
+        let rootOk = request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['participants', 'lastActivityAt', 'expiresAt'].toSet());
+        let selfOnly = newP.diff(oldP).affectedKeys().hasOnly([uid].toSet());
+        let emojiOnly = newMine.diff(oldMine).affectedKeys().hasOnly(['lastEmoji'].toSet());
+        // size() em rules é bytes UTF-8. 64 cobre emojis de família/casal (até ~20 bytes)
+        // e barra strings de texto longas.
+        let shapeOk = evt.value is string && evt.value.size() >= 1
+          && evt.value.size() <= 64 && evt.sentAt == request.time;
+        let coolOk = !('lastEmoji' in oldMine)
+          || oldMine.lastEmoji.sentAt + duration.value(2, 's') < request.time;
+
+        return rootOk && selfOnly && emojiOnly && shapeOk && coolOk;
       }
     }
   }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import PlayingCard from './PlayingCard.vue'
+import EmojiBubble from './EmojiBubble.vue'
 import type { PresenceState } from '@/types/room'
 
 const props = defineProps<{
@@ -13,16 +14,33 @@ const props = defineProps<{
   revealed: boolean
   canKick?: boolean
   cardSize?: 'xs' | 'sm' | 'md' | 'lg'
+  activeEmoji?: { value: string; key: number } | null
 }>()
-const emit = defineEmits<{ kick: [uid: string] }>()
+const emit = defineEmits<{
+  kick: [uid: string]
+  'open-emoji-panel': []
+  'emoji-bubble-done': [uid: string]
+}>()
 
 const showMenu = ref(false)
+
+function onTriggerClick() {
+  if (props.isSelf) {
+    emit('open-emoji-panel')
+    return
+  }
+  if (props.canKick) {
+    showMenu.value = !showMenu.value
+  }
+}
+
 function confirmKick() {
   if (confirm(`Remover ${props.name} da sala?`)) emit('kick', props.uid)
   showMenu.value = false
 }
 
 const initial = computed(() => props.name.slice(0, 1).toUpperCase())
+const showTrigger = computed(() => props.isSelf || (props.canKick && !props.isSelf))
 </script>
 
 <template>
@@ -50,12 +68,18 @@ const initial = computed(() => props.name.slice(0, 1).toUpperCase())
 
     <div class="name-line">
       <span class="name">{{ name }}</span>
+      <EmojiBubble
+        v-if="activeEmoji"
+        :key="activeEmoji.key"
+        :value="activeEmoji.value"
+        @done="emit('emoji-bubble-done', uid)"
+      />
     </div>
 
     <button
-      v-if="canKick && !isSelf"
+      v-if="showTrigger"
       type="button"
-      @click="showMenu = !showMenu"
+      @click="onTriggerClick"
       class="kick-trigger"
       aria-label="Opções"
     >⋯</button>
@@ -132,6 +156,7 @@ const initial = computed(() => props.name.slice(0, 1).toUpperCase())
 }
 
 .name-line {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 4px;

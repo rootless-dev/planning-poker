@@ -146,3 +146,11 @@ export async function kickParticipant(roomId: string, uid: string): Promise<void
     ...activityPatch(),
   })
 }
+
+export async function sendEmoji(roomId: string, uid: string, value: string): Promise<void> {
+  const { db } = getFirebase()
+  await updateDoc(doc(db, 'rooms', roomId), {
+    [`participants.${uid}.lastEmoji`]: { value, sentAt: serverTimestamp() },
+    ...activityPatch(),
+  })
+}
