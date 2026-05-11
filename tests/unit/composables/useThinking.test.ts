@@ -24,14 +24,14 @@ function ts(ms: number) {
 }
 
 function roomWith(
-  parts: Record<string, { thinkingUntil?: Timestamp }>,
+  parts: Record<string, { thinkingUntil?: Timestamp; vote?: string | null }>,
   revealed = false,
 ): Room {
   const baseParts: Room['participants'] = {}
   for (const [uid, p] of Object.entries(parts)) {
     baseParts[uid] = {
       name: uid,
-      vote: null,
+      vote: p.vote !== undefined ? p.vote : null,
       lastSeenAt: ts(Date.now()),
       joinedAt: ts(Date.now()),
       ...(p.thinkingUntil ? { thinkingUntil: p.thinkingUntil } : {}),
@@ -116,6 +116,159 @@ describe('useThinking — receiver', () => {
     vi.advanceTimersByTime(1500)
     await nextTick()
     expect(t.thinking.value.alice).toBeFalsy()
+    cleanup()
+  })
+})
+
+describe('useThinking — emitter', () => {
+  beforeEach(() => { vi.clearAllMocks() })
+  afterEach(() => { vi.useRealTimers() })
+
+  it('area-enter por menos de 1s NÃO escreve', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: false })
+    const { setThinking } = await import('@/services/firebase/rooms')
+    const { useThinking } = await import('@/composables/useThinking')
+    const room = ref<Room | null>(roomWith({ me: {} }))
+    const [t, cleanup] = withSetup(() => useThinking({
+      room, myUid: ref('me'), roomId: ref('r'),
+      suppressOwn: ref(false),
+    }))
+    t.onAreaEnter()
+    vi.advanceTimersByTime(900)
+    t.onAreaLeave()
+    vi.advanceTimersByTime(2000)
+    expect(setThinking).not.toHaveBeenCalled()
+    cleanup()
+  })
+
+  it('area-enter por ≥1s escreve thinkingUntil ≈ now + 5s', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: false })
+    const { setThinking } = await import('@/services/firebase/rooms')
+    const { useThinking } = await import('@/composables/useThinking')
+    const room = ref<Room | null>(roomWith({ me: {} }))
+    const [t, cleanup] = withSetup(() => useThinking({
+      room, myUid: ref('me'), roomId: ref('r'),
+      suppressOwn: ref(false),
+    }))
+    t.onAreaEnter()
+    vi.advanceTimersByTime(1000)
+    expect(setThinking).toHaveBeenCalledTimes(1)
+    const [, , until] = (setThinking as ReturnType<typeof vi.fn>).mock.calls[0]
+    expect(until).toBeGreaterThan(Date.now() + 4000)
+    expect(until).toBeLessThanOrEqual(Date.now() + 5000)
+    cleanup()
+  })
+
+  it('heartbeat: 1 write inicial + writes a cada 3s enquanto move', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: false })
+    const { setThinking } = await import('@/services/firebase/rooms')
+    const { useThinking } = await import('@/composables/useThinking')
+    const room = ref<Room | null>(roomWith({ me: {} }))
+    const [t, cleanup] = withSetup(() => useThinking({
+      room, myUid: ref('me'), roomId: ref('r'),
+      suppressOwn: ref(false),
+    }))
+    t.onAreaEnter()
+    vi.advanceTimersByTime(1000) // 1 write inicial
+    for (let i = 0; i < 9; i++) {
+      vi.advanceTimersByTime(1000)
+      t.onAreaMove()
+    }
+    // ~9s ativos com movimento contínuo => 1 inicial + ~3 heartbeats
+    expect((setThinking as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThanOrEqual(3)
+    expect((setThinking as ReturnType<typeof vi.fn>).mock.calls.length).toBeLessThanOrEqual(5)
+    cleanup()
+  })
+
+  it('idle-detector: sem movimento por 1.5s, heartbeat para', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: false })
+    const { setThinking } = await import('@/services/firebase/rooms')
+    const { useThinking } = await import('@/composables/useThinking')
+    const room = ref<Room | null>(roomWith({ me: {} }))
+    const [t, cleanup] = withSetup(() => useThinking({
+      room, myUid: ref('me'), roomId: ref('r'),
+      suppressOwn: ref(false),
+    }))
+    t.onAreaEnter()
+    vi.advanceTimersByTime(1000) // 1 write inicial
+    vi.advanceTimersByTime(10000) // sem area-move, idle-stop dispara depois de 1.5s
+    expect((setThinking as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1)
+    cleanup()
+  })
+
+  it('area-leave após active escreve 1 vez com janela de 4s', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: false })
+    const { setThinking } = await import('@/services/firebase/rooms')
+    const { useThinking } = await import('@/composables/useThinking')
+    const room = ref<Room | null>(roomWith({ me: {} }))
+    const [t, cleanup] = withSetup(() => useThinking({
+      room, myUid: ref('me'), roomId: ref('r'),
+      suppressOwn: ref(false),
+    }))
+    t.onAreaEnter()
+    vi.advanceTimersByTime(1000) // active, 1 write
+    t.onAreaLeave()
+    const calls = (setThinking as ReturnType<typeof vi.fn>).mock.calls
+    expect(calls.length).toBe(2)
+    const [, , leaveUntil] = calls[1]
+    expect(leaveUntil).toBeGreaterThanOrEqual(Date.now() + 3900)
+    expect(leaveUntil).toBeLessThanOrEqual(Date.now() + 4100)
+    cleanup()
+  })
+
+  it('round.revealed=true emite clearThinking', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: false })
+    const { setThinking, clearThinking } = await import('@/services/firebase/rooms')
+    const { useThinking } = await import('@/composables/useThinking')
+    const room = ref<Room | null>(roomWith({ me: {} }))
+    const [t, cleanup] = withSetup(() => useThinking({
+      room, myUid: ref('me'), roomId: ref('r'),
+      suppressOwn: ref(false),
+    }))
+    t.onAreaEnter()
+    vi.advanceTimersByTime(1000)
+    expect(setThinking).toHaveBeenCalledTimes(1)
+    room.value = roomWith({ me: {} }, true)
+    await nextTick()
+    expect(clearThinking).toHaveBeenCalledTimes(1)
+    cleanup()
+  })
+
+  it('quando me.vote muda para não-null, state machine reseta (sem novo write)', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: false })
+    const { setThinking } = await import('@/services/firebase/rooms')
+    const { useThinking } = await import('@/composables/useThinking')
+    const room = ref<Room | null>(roomWith({ me: {} }))
+    const [t, cleanup] = withSetup(() => useThinking({
+      room, myUid: ref('me'), roomId: ref('r'),
+      suppressOwn: ref(false),
+    }))
+    t.onAreaEnter()
+    vi.advanceTimersByTime(1000) // 1 write
+    // simula voto chegando
+    const r = roomWith({ me: {} })
+    r.participants.me.vote = '5'
+    room.value = r
+    await nextTick()
+    vi.advanceTimersByTime(5000)
+    t.onAreaMove()
+    expect((setThinking as ReturnType<typeof vi.fn>).mock.calls.length).toBe(1)
+    cleanup()
+  })
+
+  it('suppressOwn=true ignora onAreaEnter (não escreve)', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: false })
+    const { setThinking } = await import('@/services/firebase/rooms')
+    const { useThinking } = await import('@/composables/useThinking')
+    const room = ref<Room | null>(roomWith({ me: {} }))
+    const suppress = ref(true)
+    const [t, cleanup] = withSetup(() => useThinking({
+      room, myUid: ref('me'), roomId: ref('r'),
+      suppressOwn: suppress,
+    }))
+    t.onAreaEnter()
+    vi.advanceTimersByTime(2000)
+    expect(setThinking).not.toHaveBeenCalled()
     cleanup()
   })
 })
