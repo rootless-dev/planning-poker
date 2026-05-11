@@ -1,26 +1,29 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
+import { tryLoadLottie } from '@/lib/notoEmoji'
+import LottiePlayer from './LottiePlayer.vue'
 
-defineProps<{ value: string }>()
+const props = defineProps<{ value: string }>()
 const emit = defineEmits<{ done: [] }>()
 
 const phase = ref<'in' | 'hold' | 'out'>('in')
+const lottieData = ref<object | null>(null)
 const timers: number[] = []
 
 onMounted(() => {
+  tryLoadLottie(props.value).then((data) => { if (data) lottieData.value = data })
   timers.push(window.setTimeout(() => (phase.value = 'hold'), 350))
   timers.push(window.setTimeout(() => (phase.value = 'out'), 350 + 1600))
   timers.push(window.setTimeout(() => emit('done'), 350 + 1600 + 280))
 })
 
-onUnmounted(() => {
-  for (const t of timers) clearTimeout(t)
-})
+onUnmounted(() => { for (const t of timers) clearTimeout(t) })
 </script>
 
 <template>
   <div class="bubble" :class="phase" role="status" aria-live="polite">
-    <span class="content">{{ value }}</span>
+    <LottiePlayer v-if="lottieData" :animation="lottieData" :size="32" />
+    <span v-else class="content">{{ value }}</span>
     <span class="tail" aria-hidden="true" />
   </div>
 </template>

@@ -2,6 +2,8 @@ import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import EmojiBubble from '@/components/room/EmojiBubble.vue'
 
+vi.mock('@/lib/notoEmoji', () => ({ tryLoadLottie: vi.fn().mockResolvedValue(null) }))
+
 describe('EmojiBubble', () => {
   it('renderiza o value como unicode', () => {
     const w = mount(EmojiBubble, { props: { value: '🎉' } })
