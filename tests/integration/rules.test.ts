@@ -95,6 +95,19 @@ describe('firestore.rules', () => {
     }))
   })
 
+  it('participante novo pode entrar (join) adicionando próprio nó', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'rJoin'), baseRoom('mod'))
+    })
+    const ctx = env.authenticatedContext('bob')
+    const now = Timestamp.now()
+    await assertSucceeds(updateDoc(doc(ctx.firestore(), 'rooms', 'rJoin'), {
+      'participants.bob': { name: 'Bob', vote: null, lastSeenAt: now, joinedAt: now },
+      lastActivityAt: serverTimestamp(),
+      expiresAt: Timestamp.fromMillis(Date.now() + 86_400_000),
+    }))
+  })
+
   it('participante pode escrever próprio lastEmoji', async () => {
     await env.withSecurityRulesDisabled(async (admin) => {
       await setDoc(doc(admin.firestore(), 'rooms', 'rE1'), baseRoom('mod', 'alice'))

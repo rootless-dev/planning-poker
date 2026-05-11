@@ -36,11 +36,12 @@ service cloud.firestore {
 
         let stillPresent = newParticipants.keys().hasAll([myKey]);
 
-        // Exclude pure lastEmoji changes — those must go through isSelfBroadcastingEmoji
-        let myMineChanged = newParticipants[myKey].diff(oldParticipants[myKey]).affectedKeys();
-        let notOnlyEmoji = !myMineChanged.hasOnly(['lastEmoji'].toSet());
+        // Exclude pure lastEmoji changes — those must go through isSelfBroadcastingEmoji.
+        // Only applies when the participant already existed (i.e., not a fresh join).
+        let onlyEmojiChanged = (myKey in oldParticipants)
+          && newParticipants[myKey].diff(oldParticipants[myKey]).affectedKeys().hasOnly(['lastEmoji'].toSet());
 
-        return onlyAllowedRoot && onlySelfKeyChanged && stillPresent && notOnlyEmoji;
+        return onlyAllowedRoot && onlySelfKeyChanged && stillPresent && !onlyEmojiChanged;
       }
 
       function isSelfBroadcastingEmoji() {
