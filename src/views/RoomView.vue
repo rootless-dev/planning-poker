@@ -99,12 +99,30 @@ async function onKick(targetUid: string) {
 function onKey(e: KeyboardEvent) {
   const target = e.target as HTMLElement | null
   if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return
+  if (e.key === 'Escape' && emojiPanelOpen.value) {
+    closeEmojiPanel()
+    return
+  }
   if (e.key === 'r' && room.isModerator.value && room.room.value && !room.room.value.round.revealed) {
     void onReveal()
   }
 }
-onMounted(() => window.addEventListener('keydown', onKey))
-onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
+
+function onDocClick(e: MouseEvent) {
+  if (!emojiPanelOpen.value) return
+  const t = e.target as HTMLElement
+  if (t.closest('.emoji-panel') || t.closest('.kick-trigger')) return
+  closeEmojiPanel()
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onKey)
+  window.addEventListener('click', onDocClick)
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onKey)
+  window.removeEventListener('click', onDocClick)
+})
 </script>
 
 <template>

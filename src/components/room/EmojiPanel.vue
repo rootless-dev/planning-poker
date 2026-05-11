@@ -23,17 +23,19 @@ function onPickerClick(e: Event) {
 </script>
 
 <template>
-  <aside class="emoji-panel" role="dialog" aria-label="Reagir com emoji" @keydown.esc="emit('close')">
-    <header class="panel-head">
-      <h3>Reagir</h3>
-      <button type="button" aria-label="Fechar" @click="emit('close')">×</button>
-    </header>
-    <div class="picker-wrap" :class="{ disabled: cooldownRemainingMs > 0 }">
-      <emoji-picker v-if="ready" @emoji-click="onPickerClick" />
-      <p v-else class="loading">Carregando…</p>
-      <div v-if="cooldownRemainingMs > 0" class="cooldown-overlay">aguarde…</div>
-    </div>
-  </aside>
+  <Transition name="panel" appear>
+    <aside class="emoji-panel" role="dialog" aria-label="Reagir com emoji" @keydown.esc="emit('close')">
+      <header class="panel-head">
+        <h3>Reagir</h3>
+        <button type="button" aria-label="Fechar" @click="emit('close')">×</button>
+      </header>
+      <div class="picker-wrap" :class="{ disabled: cooldownRemainingMs > 0 }">
+        <emoji-picker v-if="ready" @emoji-click="onPickerClick" />
+        <p v-else class="loading">Carregando…</p>
+        <div v-if="cooldownRemainingMs > 0" class="cooldown-overlay">aguarde…</div>
+      </div>
+    </aside>
+  </Transition>
 </template>
 
 <style scoped>
@@ -106,6 +108,14 @@ emoji-picker {
   height: 100%;
 }
 
+.panel-enter-active, .panel-leave-active {
+  transition: transform 220ms cubic-bezier(.2,.7,.2,1), opacity 220ms ease;
+}
+.panel-enter-from, .panel-leave-to {
+  transform: translateY(-50%) translateX(120%);
+  opacity: 0;
+}
+
 @media (max-width: 767px) {
   .emoji-panel {
     right: 0;
@@ -116,6 +126,11 @@ emoji-picker {
     width: 100%;
     max-height: 60vh;
     border-radius: 14px 14px 0 0;
+  }
+
+  .panel-enter-from, .panel-leave-to {
+    transform: translateY(100%);
+    opacity: 0;
   }
 }
 </style>
