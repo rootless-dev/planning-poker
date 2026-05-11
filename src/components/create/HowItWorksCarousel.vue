@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 interface Scene {
   kicker: string
@@ -35,10 +35,15 @@ const activeIndex = ref(0)
 const timerId = ref<ReturnType<typeof setTimeout> | null>(null)
 const paused = ref(false)
 
-const reducedMotion = computed(() => {
-  if (typeof window === 'undefined') return false
-  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
-})
+const reducedMotion = ref(false)
+const mediaQuery = typeof window !== 'undefined' && window.matchMedia
+  ? window.matchMedia('(prefers-reduced-motion: reduce)')
+  : null
+if (mediaQuery) reducedMotion.value = mediaQuery.matches
+
+function onReducedMotionChange(e: MediaQueryListEvent) {
+  reducedMotion.value = e.matches
+}
 
 function clearTimer() {
   if (timerId.value !== null) {
@@ -68,8 +73,14 @@ function onFocusOut()     { paused.value = false; scheduleNext() }
 
 watch(reducedMotion, (rm) => { if (rm) clearTimer() })
 
-onMounted(() => { scheduleNext() })
-onBeforeUnmount(() => { clearTimer() })
+onMounted(() => {
+  mediaQuery?.addEventListener('change', onReducedMotionChange)
+  scheduleNext()
+})
+onBeforeUnmount(() => {
+  mediaQuery?.removeEventListener('change', onReducedMotionChange)
+  clearTimer()
+})
 </script>
 
 <template>
@@ -95,13 +106,17 @@ onBeforeUnmount(() => { clearTimer() })
       >
         <p class="kicker">{{ scene.kicker }}</p>
         <h2 class="scene-title">{{ scene.title }}</h2>
-        <p class="scene-desc" aria-live="polite">{{ scene.description }}</p>
+        <p class="scene-desc">{{ scene.description }}</p>
         <div class="scene-art" aria-hidden="true">
           <div class="card t1">{{ ['3', '5', '8', '13'][i] }}</div>
           <div class="card mid">{{ ['5', '8', '13', '20'][i] }}</div>
           <div class="card t3">{{ ['8', '13', '20', '40'][i] }}</div>
         </div>
       </div>
+    </div>
+
+    <div class="sr-only" aria-live="polite" aria-atomic="true">
+      {{ SCENES[activeIndex].title }}. {{ SCENES[activeIndex].description }}
     </div>
 
     <div class="dots" role="tablist">
@@ -193,6 +208,14 @@ onBeforeUnmount(() => { clearTimer() })
 }
 .dot.active { background: var(--color-accent); width: 24px; }
 .dot:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0);
+  white-space: nowrap; border: 0;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .scene { transition: none; }
