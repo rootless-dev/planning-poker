@@ -103,6 +103,7 @@ function onKey(e: KeyboardEvent) {
     closeEmojiPanel()
     return
   }
+  if (emojiPanelOpen.value) return
   if (e.key === 'r' && room.isModerator.value && room.room.value && !room.room.value.round.revealed) {
     void onReveal()
   }
