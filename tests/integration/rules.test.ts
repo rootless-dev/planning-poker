@@ -130,14 +130,27 @@ describe('firestore.rules', () => {
     }))
   })
 
-  it('rejeita lastEmoji com value > 16 chars', async () => {
+  it('rejeita lastEmoji com value > 64 bytes', async () => {
     await env.withSecurityRulesDisabled(async (admin) => {
       await setDoc(doc(admin.firestore(), 'rooms', 'rE3'), baseRoom('mod', 'alice'))
     })
     const ctx = env.authenticatedContext('alice')
     await assertFails(updateDoc(doc(ctx.firestore(), 'rooms', 'rE3'), {
-      'participants.alice.lastEmoji': { value: 'x'.repeat(17), sentAt: serverTimestamp() },
+      'participants.alice.lastEmoji': { value: 'x'.repeat(65), sentAt: serverTimestamp() },
       lastActivityAt: serverTimestamp(),
+      expiresAt: Timestamp.fromMillis(Date.now() + 86_400_000),
+    }))
+  })
+
+  it('aceita lastEmoji com emoji de família (multi-codepoint)', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'rE5'), baseRoom('mod', 'alice'))
+    })
+    const ctx = env.authenticatedContext('alice')
+    await assertSucceeds(updateDoc(doc(ctx.firestore(), 'rooms', 'rE5'), {
+      'participants.alice.lastEmoji': { value: '👨‍👩‍👦', sentAt: serverTimestamp() },
+      lastActivityAt: serverTimestamp(),
+      expiresAt: Timestamp.fromMillis(Date.now() + 86_400_000),
     }))
   })
 

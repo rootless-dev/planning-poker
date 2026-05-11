@@ -59,7 +59,9 @@ export function useEmojiBroadcast(opts: {
   async function sendEmoji(value: string) {
     if (!opts.myUid.value) return
     if (cooldownRemainingMs.value > 0) return
-    if (value.length > 16) return
+    // Codepoint count, não JS UTF-16 chars: emojis de família/casal têm length JS pequeno
+    // mas ocupam muitos bytes UTF-8 — a regra Firestore valida em bytes (até 64).
+    if ([...value].length > 16) return
     if (!EMOJI_RE.test(value)) return
     lastSelfSentAt.value = Date.now()
     now.value = Date.now() // sincroniza imediatamente para teste de cooldown

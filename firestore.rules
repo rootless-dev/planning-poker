@@ -56,8 +56,10 @@ service cloud.firestore {
           .hasOnly(['participants', 'lastActivityAt', 'expiresAt'].toSet());
         let selfOnly = newP.diff(oldP).affectedKeys().hasOnly([uid].toSet());
         let emojiOnly = newMine.diff(oldMine).affectedKeys().hasOnly(['lastEmoji'].toSet());
+        // size() em rules é bytes UTF-8. 64 cobre emojis de família/casal (até ~20 bytes)
+        // e barra strings de texto longas.
         let shapeOk = evt.value is string && evt.value.size() >= 1
-          && evt.value.size() <= 16 && evt.sentAt == request.time;
+          && evt.value.size() <= 64 && evt.sentAt == request.time;
         let coolOk = !('lastEmoji' in oldMine)
           || oldMine.lastEmoji.sentAt + duration.value(2, 's') < request.time;
 
