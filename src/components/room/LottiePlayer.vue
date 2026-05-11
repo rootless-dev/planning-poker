@@ -4,10 +4,12 @@ import { onMounted, onUnmounted, ref } from 'vue'
 const props = defineProps<{ animation: object; size?: number }>()
 const root = ref<HTMLDivElement | null>(null)
 let anim: { destroy: () => void } | null = null
+let destroyed = false
 
 onMounted(async () => {
   if (!root.value) return
   const { default: lottie } = await import('lottie-web')
+  if (destroyed || !root.value) return
   anim = lottie.loadAnimation({
     container: root.value,
     renderer: 'svg',
@@ -17,7 +19,10 @@ onMounted(async () => {
   })
 })
 
-onUnmounted(() => { anim?.destroy() })
+onUnmounted(() => {
+  destroyed = true
+  anim?.destroy()
+})
 </script>
 
 <template>
