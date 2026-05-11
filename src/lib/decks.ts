@@ -58,7 +58,7 @@ export const DECK_PRESETS: readonly DeckPreset[] = [
   },
 ] as const
 
-const NON_NUMERIC_TOKENS = new Set(['?', '☕'])
+const UTILITY_TOKENS = new Set(['?', '☕'])
 
 interface BuildOptions {
   type: DeckType
@@ -85,7 +85,7 @@ export function buildDeck(opts: BuildOptions): Deck {
 }
 
 export function pickPreview(values: readonly string[]): string[] {
-  const meaningful = values.filter(v => !NON_NUMERIC_TOKENS.has(v))
+  const meaningful = values.filter(v => !UTILITY_TOKENS.has(v))
   if (meaningful.length <= 4) return [...meaningful]
   const n = meaningful.length
   const indices = [

@@ -115,9 +115,8 @@ describe('pickPreview', () => {
     expect(result).toEqual(['1', '3', '5', '13'])
   })
 
-  it('deduplica se a amostragem cair em índices duplicados', () => {
+  it('retorna todos os valores quando há apenas 2 não-filtrados', () => {
     const result = pickPreview(['1', '2', '?'])
-    // só 2 não-filtrados, retorna todos sem duplicar
     expect(result).toEqual(['1', '2'])
   })
 
