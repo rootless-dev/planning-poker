@@ -2,6 +2,9 @@
 
 Realtime Planning Poker para times distribuídos. Vue 3 + Vite + Firebase, sem cadastro.
 
+App: <https://planning-poker-75982.web.app/>
+Código: <https://github.com/rootless-dev/planning-poker>
+
 ## Features
 
 - Cria sala em segundos, compartilha por link.
