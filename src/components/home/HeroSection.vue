@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import PrimaryButton from '@/components/ui/PrimaryButton.vue'
 import GhostButton from '@/components/ui/GhostButton.vue'
 import TextField from '@/components/ui/TextField.vue'
@@ -8,19 +8,37 @@ import Modal from '@/components/ui/Modal.vue'
 
 const router = useRouter()
 const showJoin = ref(false)
-const joinUrl = ref('')
+const sessionId = ref('')
+const joinError = ref('')
+
+const UUID_RE = /^[0-9a-fA-F-]{36}$/
 
 function goCreate() { router.push({ name: 'create-session' }) }
 
-function tryJoin() {
-  const match = joinUrl.value.match(/\/session\/([0-9a-fA-F-]{36})/)
-  if (match) {
-    router.push({ name: 'room', params: { id: match[1] } })
-    showJoin.value = false
-  } else if (/^[0-9a-fA-F-]{36}$/.test(joinUrl.value.trim())) {
-    router.push({ name: 'room', params: { id: joinUrl.value.trim() } })
-    showJoin.value = false
+watch(sessionId, () => { joinError.value = '' })
+watch(showJoin, (open) => {
+  if (open) {
+    sessionId.value = ''
+    joinError.value = ''
   }
+})
+
+function tryJoin() {
+  const raw = sessionId.value.trim()
+  if (!raw) {
+    joinError.value = 'Informe o ID da sala'
+    return
+  }
+  if (raw.includes('/') || raw.startsWith('http')) {
+    joinError.value = 'Cole apenas o ID da sala, não o link completo'
+    return
+  }
+  if (!UUID_RE.test(raw)) {
+    joinError.value = 'ID inválido — verifique e tente de novo'
+    return
+  }
+  router.push({ name: 'room', params: { id: raw } })
+  showJoin.value = false
 }
 </script>
 
@@ -46,7 +64,13 @@ function tryJoin() {
 
     <Modal :open="showJoin" title="Entrar em uma sala" @close="showJoin = false">
       <form @submit.prevent="tryJoin" class="flex flex-col gap-3">
-        <TextField v-model="joinUrl" label="Link ou ID da sala" placeholder="https://… ou UUID" />
+        <TextField
+          v-model="sessionId"
+          label="ID da sala"
+          placeholder="ex.: a1b2c3d4-e5f6-7890-abcd-ef0123456789"
+          :maxlength="36"
+        />
+        <p v-if="joinError" class="form-error">{{ joinError }}</p>
         <div class="flex justify-end gap-2">
           <GhostButton @click="showJoin = false">Cancelar</GhostButton>
           <PrimaryButton type="submit">Entrar</PrimaryButton>
@@ -55,3 +79,13 @@ function tryJoin() {
     </Modal>
   </section>
 </template>
+
+<style scoped>
+.form-error {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--color-claret);
+  margin: 0;
+}
+</style>
