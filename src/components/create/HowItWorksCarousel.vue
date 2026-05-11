@@ -187,7 +187,7 @@ onBeforeUnmount(() => {
   width: 56px; height: 80px;
   border-radius: 10px;
   background: linear-gradient(180deg, var(--color-paper-soft), var(--color-paper-deep));
-  color: var(--color-ink);
+  color: var(--color-felt-deep);
   display: flex; align-items: center; justify-content: center;
   font-family: var(--font-display); font-weight: 700; font-size: 1.2rem;
   box-shadow: 0 4px 12px rgb(var(--color-shadow) / 0.35), inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 45%, transparent);

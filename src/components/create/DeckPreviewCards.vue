@@ -36,7 +36,7 @@ defineProps<{ values: string[] }>()
     var(--color-paper-soft) 0%,
     var(--color-paper) 55%,
     var(--color-paper-deep) 100%);
-  color: var(--color-ink);
+  color: var(--color-felt-deep);
   display: flex;
   align-items: center;
   justify-content: center;
