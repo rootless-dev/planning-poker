@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useToasts } from '@/composables/useToasts'
+import Modal from '@/components/ui/Modal.vue'
+import GhostButton from '@/components/ui/GhostButton.vue'
 
 const props = defineProps<{
   roomName: string
@@ -22,13 +25,27 @@ function commit() {
 }
 
 const toasts = useToasts()
-async function copyLink() {
+const route = useRoute()
+const showShare = ref(false)
+
+const sessionId = computed(() => String(route.params.id ?? ''))
+const fullLink = computed(() => (typeof window !== 'undefined' ? window.location.href : ''))
+
+async function writeToClipboard(value: string, successMsg: string) {
   try {
-    await navigator.clipboard.writeText(window.location.href)
-    toasts.push('Link copiado', 'success')
+    await navigator.clipboard.writeText(value)
+    toasts.push(successMsg, 'success')
   } catch {
     toasts.push('Não consegui copiar — copie da barra de endereço', 'error')
   }
+}
+
+function copyFullLink() {
+  void writeToClipboard(fullLink.value, 'Link copiado')
+}
+
+function copySessionId() {
+  void writeToClipboard(sessionId.value, 'ID copiado')
 }
 
 const status = computed(() => {
@@ -45,11 +62,26 @@ const status = computed(() => {
         <span class="kicker">Sessão · {{ totalActive }} {{ totalActive === 1 ? 'jogador' : 'jogadores' }}</span>
         <h1 class="room-name">{{ roomName }}</h1>
       </div>
-      <button type="button" @click="copyLink" class="link-btn">
+      <button type="button" @click="showShare = true" class="link-btn">
         <span class="dot" aria-hidden="true">↗</span>
         <span>Copiar link</span>
       </button>
     </div>
+
+    <Modal :open="showShare" kicker="Compartilhar" title="Convide para a mesa" size="sm" @close="showShare = false">
+      <div class="share-stack">
+        <div class="share-row">
+          <span class="share-label kicker">Link completo</span>
+          <code class="share-value">{{ fullLink }}</code>
+          <GhostButton @click="copyFullLink">Copiar</GhostButton>
+        </div>
+        <div class="share-row">
+          <span class="share-label kicker">ID da sessão</span>
+          <code class="share-value">{{ sessionId }}</code>
+          <GhostButton @click="copySessionId">Copiar</GhostButton>
+        </div>
+      </div>
+    </Modal>
 
     <div class="gold-rule"></div>
 
@@ -235,6 +267,33 @@ const status = computed(() => {
   0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 60%, transparent); }
   70%  { box-shadow: 0 0 0 7px color-mix(in srgb, var(--color-accent) 0%, transparent); }
   100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 0%, transparent); }
+}
+
+.share-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.share-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px 12px;
+}
+.share-label {
+  grid-column: 1 / -1;
+}
+.share-value {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-ink) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
+  color: var(--color-ink);
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 @media (max-width: 640px) {
