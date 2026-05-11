@@ -6,6 +6,10 @@ import ToastsLayer from '@/components/ToastsLayer.vue'
 
 <template>
   <AppHeader />
-  <RouterView />
+  <RouterView v-slot="{ Component }">
+    <Transition name="page" mode="out-in">
+      <component :is="Component" />
+    </Transition>
+  </RouterView>
   <ToastsLayer />
 </template>

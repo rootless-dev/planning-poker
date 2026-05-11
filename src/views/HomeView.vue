@@ -4,6 +4,12 @@ import HomeFooter from '@/components/home/HomeFooter.vue'
 </script>
 
 <template>
-  <HeroSection />
-  <HomeFooter />
+  <div class="home-page">
+    <HeroSection />
+    <HomeFooter />
+  </div>
 </template>
+
+<style scoped>
+.home-page { display: contents; }
+</style>

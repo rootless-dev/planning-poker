@@ -1,6 +1,15 @@
 import type { Timestamp } from 'firebase/firestore'
 
-export type DeckType = 'fibonacci' | 'tshirt' | 'custom'
+export type DeckType =
+  | 'fibonacci'
+  | 'fibonacci-modified'
+  | 'tshirt'
+  | 'powers-of-2'
+  | 'sequential'
+  | 'hours'
+  | 'risk'
+  | 'yes-no'
+  | 'custom'
 
 export interface Deck {
   type: DeckType
