@@ -12,8 +12,17 @@ interface Seat {
   isSelf: boolean
 }
 
-const props = defineProps<{ seats: Seat[]; revealed: boolean; canKick?: boolean }>()
-const emit = defineEmits<{ kick: [uid: string] }>()
+const props = defineProps<{
+  seats: Seat[]
+  revealed: boolean
+  canKick?: boolean
+  activeBubble?: Record<string, { value: string; key: number } | undefined>
+}>()
+const emit = defineEmits<{
+  kick: [uid: string]
+  'open-emoji-panel': []
+  'emoji-bubble-done': [uid: string]
+}>()
 
 const positions = computed(() => {
   const n = props.seats.length || 1
@@ -59,7 +68,10 @@ const cardSize = computed<'xs' | 'sm' | 'md' | 'lg'>(() => {
           :revealed="revealed"
           :can-kick="canKick"
           :card-size="cardSize"
+          :active-emoji="activeBubble?.[seat.uid] ?? null"
           @kick="(uid: string) => emit('kick', uid)"
+          @open-emoji-panel="emit('open-emoji-panel')"
+          @emoji-bubble-done="(uid: string) => emit('emoji-bubble-done', uid)"
         />
       </div>
 
@@ -84,7 +96,10 @@ const cardSize = computed<'xs' | 'sm' | 'md' | 'lg'>(() => {
             :revealed="revealed"
             :can-kick="canKick"
             :card-size="cardSize"
+            :active-emoji="activeBubble?.[seat.uid] ?? null"
             @kick="(uid: string) => emit('kick', uid)"
+            @open-emoji-panel="emit('open-emoji-panel')"
+            @emoji-bubble-done="(uid: string) => emit('emoji-bubble-done', uid)"
           />
         </div>
         <div class="mobile-center">
