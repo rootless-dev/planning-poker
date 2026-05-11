@@ -13,6 +13,7 @@ defineProps<{ values: string[] }>()
         'tilt-right': i === 3 && values.length === 4,
         'lift':       (i === 1 || i === 2) && values.length === 4,
       }"
+      :style="{ fontSize: v.length > 4 ? 'clamp(0.7rem, 2.2vw, 0.95rem)' : (v.length > 2 ? '1.15rem' : '1.6rem') }"
     >
       {{ v }}
     </div>

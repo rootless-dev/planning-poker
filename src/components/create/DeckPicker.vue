@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import type { DeckType } from '@/types/room'
 import { DECK_PRESETS, pickPreview } from '@/lib/decks'
 import DeckPreviewCards from './DeckPreviewCards.vue'
@@ -20,6 +20,15 @@ const activePreset = computed(() =>
 const previewValues = computed(() =>
   activePreset.value ? pickPreview(activePreset.value.values) : []
 )
+
+const editorRef = ref<{ focus: () => void } | null>(null)
+
+watch(() => props.modelValue, async (next, prev) => {
+  if (next === 'custom' && prev !== 'custom') {
+    await nextTick()
+    editorRef.value?.focus()
+  }
+})
 
 function onSelectChange(e: Event) {
   emit('update:modelValue', (e.target as HTMLSelectElement).value as DeckType)
@@ -44,6 +53,7 @@ function onSelectChange(e: Event) {
     <DeckPreviewCards v-if="modelValue !== 'custom'" :values="previewValues" />
     <CustomDeckEditor
       v-else
+      ref="editorRef"
       :model-value="customRaw"
       @update:model-value="(v: string) => emit('update:customRaw', v)"
     />
