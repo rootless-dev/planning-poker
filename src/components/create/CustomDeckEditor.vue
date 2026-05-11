@@ -82,7 +82,7 @@ defineExpose({
 <template>
   <div class="chip-field">
     <span class="field-label kicker">Valores do baralho</span>
-    <div class="chip-wrap focus-gold" @click="inputRef?.focus()">
+    <div class="chip-wrap" @click="inputRef?.focus()">
       <span v-for="(c, i) in chips" :key="`${i}-${c}`" class="chip">
         {{ c }}
         <button
@@ -154,7 +154,12 @@ defineExpose({
   font-size: 0.95rem;
   line-height: 1;
 }
-.chip-remove:hover, .chip-remove:focus-visible { opacity: 1; outline: none; }
+.chip-remove:hover { opacity: 1; }
+.chip-remove:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
 .chip-input {
   flex: 1;
   min-width: 90px;
