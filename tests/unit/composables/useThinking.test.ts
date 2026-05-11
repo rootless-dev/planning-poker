@@ -196,6 +196,28 @@ describe('useThinking — emitter', () => {
     cleanup()
   })
 
+  it('movement após idle-active retoma heartbeats', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: false })
+    const { setThinking } = await import('@/services/firebase/rooms')
+    const { useThinking } = await import('@/composables/useThinking')
+    const room = ref<Room | null>(roomWith({ me: {} }))
+    const [t, cleanup] = withSetup(() => useThinking({
+      room, myUid: ref('me'), roomId: ref('r'),
+      suppressOwn: ref(false),
+    }))
+    t.onAreaEnter()
+    vi.advanceTimersByTime(1000) // active, 1 write
+    vi.advanceTimersByTime(2000) // sem move -> idle-active (idle-stop em 1.5s)
+    const baselineCalls = (setThinking as ReturnType<typeof vi.fn>).mock.calls.length
+    t.onAreaMove() // retoma -> active (novo write + reinicia heartbeat)
+    vi.advanceTimersByTime(4000)
+    t.onAreaMove()
+    vi.advanceTimersByTime(1) // permite heartbeats agendados rodarem
+    const afterCalls = (setThinking as ReturnType<typeof vi.fn>).mock.calls.length
+    expect(afterCalls).toBeGreaterThan(baselineCalls)
+    cleanup()
+  })
+
   it('area-leave após active escreve 1 vez com janela de 4s', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: false })
     const { setThinking } = await import('@/services/firebase/rooms')

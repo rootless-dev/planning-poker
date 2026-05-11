@@ -83,6 +83,7 @@ export function useThinking(opts: UseThinkingOptions): UseThinkingApi {
   }
 
   function enterActive() {
+    if (heartbeatTimer != null) { clearInterval(heartbeatTimer); heartbeatTimer = null }
     state = 'active'
     writeUntil(WINDOW_MS)
     heartbeatTimer = window.setInterval(() => {
