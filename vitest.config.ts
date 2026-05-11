@@ -3,7 +3,15 @@ import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue({
+      template: {
+        compilerOptions: {
+          isCustomElement: (tag: string) => tag === 'emoji-picker',
+        },
+      },
+    }),
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
