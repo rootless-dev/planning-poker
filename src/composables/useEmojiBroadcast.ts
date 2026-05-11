@@ -4,7 +4,7 @@ import type { Room } from '@/types/room'
 import { sendEmoji as sendEmojiSvc } from '@/services/firebase/rooms'
 
 const COOLDOWN_MS = 2000
-const EMOJI_RE = /^\p{Extended_Pictographic}(\p{Emoji_Modifier}|‍\p{Extended_Pictographic})*$/u
+const EMOJI_RE = /^\p{Extended_Pictographic}️?(\p{Emoji_Modifier}️?|‍\p{Extended_Pictographic}️?)*$/u
 
 interface BubbleState { value: string; key: number }
 
@@ -25,7 +25,7 @@ export function useEmojiBroadcast(opts: {
       let changed = false
       for (const [uid, p] of Object.entries(parts)) {
         const evt = p.lastEmoji
-        if (!evt) continue
+        if (!evt?.sentAt) continue
         const sentMs = evt.sentAt instanceof Timestamp
           ? evt.sentAt.toMillis()
           : new Timestamp((evt.sentAt as { seconds: number }).seconds, 0).toMillis()
