@@ -2,6 +2,14 @@
 
 Realtime Planning Poker para times distribuídos. Vue 3 + Vite + Firebase, sem cadastro.
 
+## Features
+
+- Cria sala em segundos, compartilha por link.
+- Baralhos Fibonacci / T-shirt / customizado.
+- Voto secreto até o moderador revelar; estatísticas (média, moda, min/max, distribuição) após reveal.
+- Reações com emoji: clique no `⋯` da sua própria cadeira para abrir um picker (à direita no desktop, bottom sheet em mobile) e mandar uma reação que aparece como balão sobre seu nome em todos os clientes — animada via Noto Emoji quando disponível, com fallback Unicode. Cooldown de 2s evita spam.
+- Moderador pode renomear a tarefa, resetar rodada, copiar link e remover participantes.
+
 ## Rodando localmente
 
 ### Pré-requisitos
