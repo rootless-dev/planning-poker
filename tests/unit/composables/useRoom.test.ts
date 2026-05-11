@@ -36,6 +36,38 @@ describe('useRoom derived state', () => {
     expect(r.inRoom.value).toBe(true)
   })
 
+  it('seats mantêm ordem de joinedAt mesmo quando participantes mudam', () => {
+    const auth = useAuthStore()
+    auth.user = { uid: 'a' } as never
+    const room = useRoomStore()
+    const baseRoom = {
+      id: 'r', name: 'n', createdAt: ts(0), lastActivityAt: ts(0), expiresAt: ts(0),
+      moderatorUid: 'a',
+      deck: { type: 'fibonacci' as const, values: [] },
+      round: { taskTitle: '', revealed: false, startedAt: ts(0) },
+    }
+    room.room = {
+      ...baseRoom,
+      participants: {
+        c: { name: 'C', vote: null, lastSeenAt: ts(0), joinedAt: ts(10) },
+        a: { name: 'A', vote: null, lastSeenAt: ts(0), joinedAt: ts(30) },
+        b: { name: 'B', vote: null, lastSeenAt: ts(0), joinedAt: ts(20) },
+      },
+    }
+    const r = useRoom()
+    expect(r.seats.value.map(s => s.uid)).toEqual(['a', 'b', 'c'])
+
+    room.room = {
+      ...baseRoom,
+      participants: {
+        b: { name: 'B', vote: '5', lastSeenAt: ts(0), joinedAt: ts(20) },
+        a: { name: 'A', vote: null, lastSeenAt: ts(0), joinedAt: ts(30) },
+        c: { name: 'C', vote: null, lastSeenAt: ts(0), joinedAt: ts(10) },
+      },
+    }
+    expect(r.seats.value.map(s => s.uid)).toEqual(['a', 'b', 'c'])
+  })
+
   it('votedCount ignora offline (>=90s)', () => {
     const auth = useAuthStore()
     auth.user = { uid: 'a' } as never
