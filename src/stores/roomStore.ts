@@ -46,7 +46,12 @@ export const useRoomStore = defineStore('room', () => {
   const participantsList = computed(() => {
     const r = room.value
     if (!r) return []
-    return Object.entries(r.participants).map(([uid, p]) => ({ uid, ...p }))
+    return Object.entries(r.participants)
+      .map(([uid, p]) => ({ uid, ...p }))
+      .sort((a, b) => {
+        const diff = a.joinedAt.toMillis() - b.joinedAt.toMillis()
+        return diff !== 0 ? diff : a.uid.localeCompare(b.uid)
+      })
   })
 
   return { room, loading, notFound, error, watch, dispose, participantsList }

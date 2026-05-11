@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, useSlots } from 'vue'
 
-const props = defineProps<{
-  open: boolean
-  title?: string
-  kicker?: string
-  closable?: boolean
-  size?: 'sm' | 'md' | 'lg'
-}>()
+const props = withDefaults(
+  defineProps<{
+    open: boolean
+    title?: string
+    kicker?: string
+    closable?: boolean
+    size?: 'sm' | 'md' | 'lg'
+  }>(),
+  { closable: true },
+)
 const emit = defineEmits<{ close: [] }>()
 const slots = useSlots()
 

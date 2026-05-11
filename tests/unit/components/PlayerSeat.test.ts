@@ -13,14 +13,18 @@ const base = {
 }
 
 describe('PlayerSeat — trigger menu', () => {
-  it('"⋯" aparece em isSelf e emite open-emoji-panel ao clicar', async () => {
+  it('"⋯" em isSelf abre menu com "Reagir" e só emite ao clicar no item', async () => {
     const w = mount(PlayerSeat, {
       props: { ...base, isSelf: true, canKick: false },
     })
     const trigger = w.get('button[aria-label="Opções"]')
     await trigger.trigger('click')
+    expect(w.find('.kick-menu').exists()).toBe(true)
+    expect(w.text()).toContain('Reagir')
+    expect(w.emitted('open-emoji-panel')).toBeFalsy()
+
+    await w.get('.kick-menu button').trigger('click')
     expect(w.emitted('open-emoji-panel')).toBeTruthy()
-    // Menu kick NÃO aparece em self
     expect(w.find('.kick-menu').exists()).toBe(false)
   })
 

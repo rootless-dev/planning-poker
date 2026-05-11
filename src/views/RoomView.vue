@@ -111,7 +111,7 @@ function onKey(e: KeyboardEvent) {
 function onDocClick(e: MouseEvent) {
   if (!emojiPanelOpen.value) return
   const t = e.target as HTMLElement
-  if (t.closest('.emoji-panel') || t.closest('.kick-trigger')) return
+  if (t.closest('.emoji-panel') || t.closest('.kick-trigger') || t.closest('.kick-menu')) return
   closeEmojiPanel()
 }
 

@@ -25,13 +25,14 @@ const emit = defineEmits<{
 const showMenu = ref(false)
 
 function onTriggerClick() {
-  if (props.isSelf) {
-    emit('open-emoji-panel')
-    return
-  }
-  if (props.canKick) {
+  if (props.isSelf || props.canKick) {
     showMenu.value = !showMenu.value
   }
+}
+
+function chooseReact() {
+  showMenu.value = false
+  emit('open-emoji-panel')
 }
 
 function confirmKick() {
@@ -84,7 +85,8 @@ const showTrigger = computed(() => props.isSelf || (props.canKick && !props.isSe
       aria-label="Opções"
     >⋯</button>
     <div v-if="showMenu" class="kick-menu">
-      <button type="button" @click="confirmKick">Remover</button>
+      <button v-if="isSelf" type="button" @click="chooseReact">Reagir</button>
+      <button v-else-if="canKick" type="button" @click="confirmKick">Remover</button>
     </div>
   </div>
 </template>
