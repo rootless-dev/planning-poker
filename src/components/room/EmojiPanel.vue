@@ -105,4 +105,17 @@ emoji-picker {
   width: 100%;
   height: 100%;
 }
+
+@media (max-width: 767px) {
+  .emoji-panel {
+    right: 0;
+    left: 0;
+    top: auto;
+    bottom: 0;
+    transform: none;
+    width: 100%;
+    max-height: 60vh;
+    border-radius: 14px 14px 0 0;
+  }
+}
 </style>
