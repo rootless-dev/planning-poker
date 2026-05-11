@@ -44,8 +44,8 @@ function onPickerClick(e: Event) {
   right: 16px;
   top: 50%;
   transform: translateY(-50%);
-  width: 340px;
-  max-height: 80vh;
+  width: 300px;
+  max-height: 360px;
   display: flex;
   flex-direction: column;
   background: var(--color-surface);
@@ -78,7 +78,7 @@ function onPickerClick(e: Event) {
 .picker-wrap {
   position: relative;
   flex: 1;
-  min-height: 320px;
+  min-height: 280px;
 }
 .picker-wrap.disabled emoji-picker { opacity: 0.45; pointer-events: none; }
 .cooldown-overlay {
@@ -104,6 +104,9 @@ emoji-picker {
   --background: var(--color-surface);
   --border-color: transparent;
   --input-border-color: color-mix(in srgb, var(--color-ink) 18%, transparent);
+  --num-columns: 7;
+  --emoji-size: 1.2rem;
+  --emoji-padding: 0.35rem;
   width: 100%;
   height: 100%;
 }
