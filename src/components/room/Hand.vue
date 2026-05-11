@@ -2,13 +2,38 @@
 import PlayingCard from './PlayingCard.vue'
 
 defineProps<{ values: string[]; selected: string | null; disabled?: boolean }>()
-const emit = defineEmits<{ select: [value: string] }>()
+const emit = defineEmits<{
+  select: [value: string]
+  'area-enter': []
+  'area-move': []
+  'area-leave': []
+}>()
+
+function onPointerEnter() { emit('area-enter') }
+function onPointerLeave() { emit('area-leave') }
+function onPointerMove() { emit('area-move') }
+function onScroll() { emit('area-move') }
+function onFocusIn() { emit('area-enter') }
+function onFocusOut(e: FocusEvent) {
+  const rt = e.relatedTarget as HTMLElement | null
+  const cur = e.currentTarget as HTMLElement | null
+  if (cur && rt && cur.contains(rt)) return
+  emit('area-leave')
+}
 </script>
 
 <template>
   <div class="hand-wrap">
     <p class="kicker hand-label">Sua mão</p>
-    <div class="hand-rail">
+    <div
+      class="hand-rail"
+      @pointerenter="onPointerEnter"
+      @pointerleave="onPointerLeave"
+      @pointermove="onPointerMove"
+      @scroll.passive="onScroll"
+      @focusin="onFocusIn"
+      @focusout="onFocusOut"
+    >
       <div class="hand-track">
         <button
           v-for="(v, i) in values"
