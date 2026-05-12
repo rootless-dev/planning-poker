@@ -58,3 +58,28 @@ describe('PlayerSeat — trigger menu', () => {
     expect(w.text()).toContain('🎉')
   })
 })
+
+describe('PlayerSeat — thinking indicator', () => {
+  it('com isThinking=true e sem voto, mostra fallback 🤔 no avatar (sem Lottie)', () => {
+    const w = mount(PlayerSeat, {
+      props: { ...base, isSelf: false, canKick: false, isThinking: true, thinkingLottie: null },
+    })
+    const avatar = w.get('.avatar')
+    expect(avatar.text()).toContain('🤔')
+    expect(avatar.text()).not.toContain('A')
+  })
+
+  it('com isThinking=false, mostra a inicial normalmente', () => {
+    const w = mount(PlayerSeat, {
+      props: { ...base, isSelf: false, canKick: false, isThinking: false, thinkingLottie: null },
+    })
+    expect(w.get('.avatar').text()).toContain('A')
+  })
+
+  it('com isThinking=true e moderador, mantém a coroa', () => {
+    const w = mount(PlayerSeat, {
+      props: { ...base, isSelf: false, canKick: false, isModerator: true, isThinking: true, thinkingLottie: null },
+    })
+    expect(w.get('.crown').exists()).toBe(true)
+  })
+})

@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import PlayingCard from './PlayingCard.vue'
 import EmojiBubble from './EmojiBubble.vue'
+import LottiePlayer from './LottiePlayer.vue'
 import type { PresenceState } from '@/types/room'
 
 const props = defineProps<{
@@ -15,6 +16,8 @@ const props = defineProps<{
   canKick?: boolean
   cardSize?: 'xs' | 'sm' | 'md' | 'lg'
   activeEmoji?: { value: string; key: number } | null
+  isThinking?: boolean
+  thinkingLottie?: object | null
 }>()
 const emit = defineEmits<{
   kick: [uid: string]
@@ -42,6 +45,15 @@ function confirmKick() {
 
 const initial = computed(() => props.name.slice(0, 1).toUpperCase())
 const showTrigger = computed(() => props.isSelf || (props.canKick && !props.isSelf))
+
+const lottieSize = computed(() => {
+  switch (props.cardSize ?? 'sm') {
+    case 'xs': return 20
+    case 'sm': return 26
+    case 'md': return 32
+    case 'lg': return 40
+  }
+})
 </script>
 
 <template>
@@ -63,7 +75,11 @@ const showTrigger = computed(() => props.isSelf || (props.canKick && !props.isSe
     <PlayingCard v-else state="revealed" :size="cardSize ?? 'sm'" :value="vote" />
 
     <div class="avatar numeral">
-      <span>{{ initial }}</span>
+      <span v-if="isThinking" class="thinking-emoji" aria-label="pensando">
+        <LottiePlayer v-if="thinkingLottie" :animation="thinkingLottie" :size="lottieSize" />
+        <span v-else>🤔</span>
+      </span>
+      <span v-else>{{ initial }}</span>
       <span v-if="isModerator" class="crown" aria-hidden="true">♛</span>
     </div>
 
@@ -228,5 +244,18 @@ const showTrigger = computed(() => props.isSelf || (props.canKick && !props.isSe
 @keyframes idle-pulse {
   0%, 100% { opacity: 0.35; }
   50%      { opacity: 0.6; }
+}
+
+.thinking-emoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05em;
+  line-height: 1;
+  animation: thinking-fade 150ms ease-out;
+}
+@keyframes thinking-fade {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
 }
 </style>

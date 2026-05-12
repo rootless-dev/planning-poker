@@ -17,6 +17,8 @@ const props = defineProps<{
   revealed: boolean
   canKick?: boolean
   activeBubble?: Record<string, { value: string; key: number } | undefined>
+  thinking?: Record<string, boolean>
+  thinkingLottie?: object | null
 }>()
 const emit = defineEmits<{
   kick: [uid: string]
@@ -69,6 +71,8 @@ const cardSize = computed<'xs' | 'sm' | 'md' | 'lg'>(() => {
           :can-kick="canKick"
           :card-size="cardSize"
           :active-emoji="activeBubble?.[seat.uid] ?? null"
+          :is-thinking="thinking?.[seat.uid] ?? false"
+          :thinking-lottie="thinkingLottie ?? null"
           @kick="(uid: string) => emit('kick', uid)"
           @open-emoji-panel="emit('open-emoji-panel')"
           @emoji-bubble-done="(uid: string) => emit('emoji-bubble-done', uid)"
@@ -97,6 +101,8 @@ const cardSize = computed<'xs' | 'sm' | 'md' | 'lg'>(() => {
             :can-kick="canKick"
             :card-size="cardSize"
             :active-emoji="activeBubble?.[seat.uid] ?? null"
+            :is-thinking="thinking?.[seat.uid] ?? false"
+            :thinking-lottie="thinkingLottie ?? null"
             @kick="(uid: string) => emit('kick', uid)"
             @open-emoji-panel="emit('open-emoji-panel')"
             @emoji-bubble-done="(uid: string) => emit('emoji-bubble-done', uid)"

@@ -17,6 +17,7 @@ import PrimaryButton from '@/components/ui/PrimaryButton.vue'
 import GhostButton from '@/components/ui/GhostButton.vue'
 import EmojiPanel from '@/components/room/EmojiPanel.vue'
 import { useEmojiBroadcast } from '@/composables/useEmojiBroadcast'
+import { useThinking } from '@/composables/useThinking'
 
 const props = defineProps<{ id: string }>()
 const router = useRouter()
@@ -37,6 +38,17 @@ const emoji = useEmojiBroadcast({
 })
 
 const emojiPanelOpen = ref(false)
+
+const suppressOwnThinking = computed(() =>
+  emojiPanelOpen.value || !!(uid.value && emoji.activeBubble.value[uid.value]),
+)
+
+const thinking = useThinking({
+  room: computed(() => room.room.value),
+  myUid: uid,
+  roomId: computed(() => props.id),
+  suppressOwn: suppressOwnThinking,
+})
 function openEmojiPanel() { emojiPanelOpen.value = true }
 function closeEmojiPanel() { emojiPanelOpen.value = false }
 async function onSelectEmoji(value: string) {
@@ -162,6 +174,8 @@ onBeforeUnmount(() => {
         :revealed="room.room.value.round.revealed"
         :can-kick="room.isModerator.value"
         :active-bubble="emoji.activeBubble.value"
+        :thinking="thinking.thinking.value"
+        :thinking-lottie="thinking.thinkingLottie.value"
         @kick="onKick"
         @open-emoji-panel="openEmojiPanel"
         @emoji-bubble-done="emoji.clearBubble"
@@ -185,6 +199,9 @@ onBeforeUnmount(() => {
         :selected="room.me.value?.vote ?? null"
         :disabled="room.room.value.round.revealed"
         @select="onPick"
+        @area-enter="thinking.onAreaEnter"
+        @area-move="thinking.onAreaMove"
+        @area-leave="thinking.onAreaLeave"
       />
 
     </div>

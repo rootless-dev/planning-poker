@@ -11,6 +11,7 @@ Código: <https://github.com/rootless-dev/planning-poker>
 - Baralhos Fibonacci / T-shirt / customizado.
 - Voto secreto até o moderador revelar; estatísticas (média, moda, min/max, distribuição) após reveal.
 - Reações com emoji: clique no `⋯` da sua própria cadeira para abrir um picker (à direita no desktop, bottom sheet em mobile) e mandar uma reação que aparece como balão sobre seu nome em todos os clientes — animada via Noto Emoji quando disponível, com fallback Unicode. Cooldown de 2s evita spam.
+- Indicador de "pensando": quando um participante hesita sobre as cartas, os outros veem um 🤔 animado no lugar da inicial dele na mesa.
 - Moderador pode renomear a tarefa, resetar rodada, copiar link e remover participantes.
 
 ## Rodando localmente

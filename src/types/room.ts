@@ -27,6 +27,7 @@ export interface Participant {
   lastSeenAt: Timestamp
   joinedAt: Timestamp
   lastEmoji?: EmojiEvent
+  thinkingUntil?: Timestamp
 }
 
 export interface Round {

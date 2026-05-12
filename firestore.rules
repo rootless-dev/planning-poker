@@ -41,7 +41,11 @@ service cloud.firestore {
         let onlyEmojiChanged = (myKey in oldParticipants)
           && newParticipants[myKey].diff(oldParticipants[myKey]).affectedKeys().hasOnly(['lastEmoji'].toSet());
 
-        return onlyAllowedRoot && onlySelfKeyChanged && stillPresent && !onlyEmojiChanged;
+        return onlyAllowedRoot && onlySelfKeyChanged && stillPresent && !onlyEmojiChanged
+          && (!('thinkingUntil' in newParticipants[myKey])
+              || (newParticipants[myKey].thinkingUntil is timestamp
+                  && newParticipants[myKey].thinkingUntil > request.time
+                  && newParticipants[myKey].thinkingUntil < request.time + duration.value(30, 's')));
       }
 
       function isSelfBroadcastingEmoji() {

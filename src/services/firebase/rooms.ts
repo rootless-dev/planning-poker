@@ -105,6 +105,7 @@ export async function setVote(roomId: string, uid: string, value: string): Promi
   await updateDoc(doc(db, 'rooms', roomId), {
     [`participants.${uid}.vote`]: value,
     [`participants.${uid}.lastSeenAt`]: serverTimestamp(),
+    [`participants.${uid}.thinkingUntil`]: deleteField(),
     ...activityPatch(),
   })
 }
@@ -151,6 +152,22 @@ export async function sendEmoji(roomId: string, uid: string, value: string): Pro
   const { db } = getFirebase()
   await updateDoc(doc(db, 'rooms', roomId), {
     [`participants.${uid}.lastEmoji`]: { value, sentAt: serverTimestamp() },
+    ...activityPatch(),
+  })
+}
+
+export async function setThinking(roomId: string, uid: string, untilMs: number): Promise<void> {
+  const { db } = getFirebase()
+  await updateDoc(doc(db, 'rooms', roomId), {
+    [`participants.${uid}.thinkingUntil`]: Timestamp.fromMillis(untilMs),
+    ...activityPatch(),
+  })
+}
+
+export async function clearThinking(roomId: string, uid: string): Promise<void> {
+  const { db } = getFirebase()
+  await updateDoc(doc(db, 'rooms', roomId), {
+    [`participants.${uid}.thinkingUntil`]: deleteField(),
     ...activityPatch(),
   })
 }
