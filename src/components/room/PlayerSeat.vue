@@ -9,6 +9,7 @@ const props = defineProps<{
   uid: string
   name: string
   vote: string | null
+  hasVoted: boolean
   presence: PresenceState
   isModerator?: boolean
   isSelf?: boolean
@@ -65,13 +66,13 @@ const lottieSize = computed(() => {
     ]"
   >
     <PlayingCard
-      v-if="vote === null"
+      v-if="!hasVoted"
       state="idle"
       :size="cardSize ?? 'sm'"
       value=""
       class="card-empty"
     />
-    <PlayingCard v-else-if="!revealed" state="back" :size="cardSize ?? 'sm'" />
+    <PlayingCard v-else-if="!revealed || vote === null" state="back" :size="cardSize ?? 'sm'" />
     <PlayingCard v-else state="revealed" :size="cardSize ?? 'sm'" :value="vote" />
 
     <div class="avatar numeral">

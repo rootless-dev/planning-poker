@@ -7,6 +7,8 @@ import { useRoomStore } from '@/stores/roomStore'
 
 vi.mock('@/services/firebase/rooms', () => ({
   subscribeToRoom: vi.fn(),
+  subscribeToOwnVote: vi.fn(),
+  subscribeToAllVotes: vi.fn(),
   joinRoom: vi.fn(),
   heartbeat: vi.fn(),
 }))
@@ -29,7 +31,7 @@ describe('useRoom derived state', () => {
       moderatorUid: 'mod-1',
       deck: { type: 'fibonacci', values: [] },
       round: { taskTitle: '', revealed: false, startedAt: ts(0) },
-      participants: { 'mod-1': { name: 'M', vote: null, lastSeenAt: ts(0), joinedAt: ts(0) } },
+      participants: { 'mod-1': { name: 'M', hasVoted: false, lastSeenAt: ts(0), joinedAt: ts(0) } },
     }
     const r = useRoom()
     expect(r.isModerator.value).toBe(true)
@@ -49,9 +51,9 @@ describe('useRoom derived state', () => {
     room.room = {
       ...baseRoom,
       participants: {
-        c: { name: 'C', vote: null, lastSeenAt: ts(0), joinedAt: ts(10) },
-        a: { name: 'A', vote: null, lastSeenAt: ts(0), joinedAt: ts(30) },
-        b: { name: 'B', vote: null, lastSeenAt: ts(0), joinedAt: ts(20) },
+        c: { name: 'C', hasVoted: false, lastSeenAt: ts(0), joinedAt: ts(10) },
+        a: { name: 'A', hasVoted: false, lastSeenAt: ts(0), joinedAt: ts(30) },
+        b: { name: 'B', hasVoted: false, lastSeenAt: ts(0), joinedAt: ts(20) },
       },
     }
     const r = useRoom()
@@ -60,9 +62,9 @@ describe('useRoom derived state', () => {
     room.room = {
       ...baseRoom,
       participants: {
-        b: { name: 'B', vote: '5', lastSeenAt: ts(0), joinedAt: ts(20) },
-        a: { name: 'A', vote: null, lastSeenAt: ts(0), joinedAt: ts(30) },
-        c: { name: 'C', vote: null, lastSeenAt: ts(0), joinedAt: ts(10) },
+        b: { name: 'B', hasVoted: true, lastSeenAt: ts(0), joinedAt: ts(20) },
+        a: { name: 'A', hasVoted: false, lastSeenAt: ts(0), joinedAt: ts(30) },
+        c: { name: 'C', hasVoted: false, lastSeenAt: ts(0), joinedAt: ts(10) },
       },
     }
     expect(r.seats.value.map(s => s.uid)).toEqual(['a', 'b', 'c'])
@@ -78,9 +80,9 @@ describe('useRoom derived state', () => {
       deck: { type: 'fibonacci', values: [] },
       round: { taskTitle: '', revealed: false, startedAt: ts(0) },
       participants: {
-        a: { name: 'A', vote: '5', lastSeenAt: ts(2), joinedAt: ts(0) },
-        b: { name: 'B', vote: '3', lastSeenAt: ts(120), joinedAt: ts(0) },
-        c: { name: 'C', vote: null, lastSeenAt: ts(2), joinedAt: ts(0) },
+        a: { name: 'A', hasVoted: true, lastSeenAt: ts(2), joinedAt: ts(0) },
+        b: { name: 'B', hasVoted: true, lastSeenAt: ts(120), joinedAt: ts(0) },
+        c: { name: 'C', hasVoted: false, lastSeenAt: ts(2), joinedAt: ts(0) },
       },
     }
     const r = useRoom()

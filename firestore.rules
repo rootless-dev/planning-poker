@@ -41,7 +41,11 @@ service cloud.firestore {
         let onlyEmojiChanged = (myKey in oldParticipants)
           && newParticipants[myKey].diff(oldParticipants[myKey]).affectedKeys().hasOnly(['lastEmoji'].toSet());
 
-        return onlyAllowedRoot && onlySelfKeyChanged && stillPresent && !onlyEmojiChanged
+        // Bloqueia gravar `vote` em texto puro dentro de participants — votos vão para a subcoleção
+        // `rooms/{rid}/votes/{uid}` com regra de leitura condicionada a round.revealed.
+        let noPlainVote = !('vote' in newParticipants[myKey]);
+
+        return onlyAllowedRoot && onlySelfKeyChanged && stillPresent && !onlyEmojiChanged && noPlainVote
           && (!('thinkingUntil' in newParticipants[myKey])
               || (newParticipants[myKey].thinkingUntil is timestamp
                   && newParticipants[myKey].thinkingUntil > request.time
@@ -68,6 +72,29 @@ service cloud.firestore {
           || oldMine.lastEmoji.sentAt + duration.value(2, 's') < request.time;
 
         return rootOk && selfOnly && emojiOnly && shapeOk && coolOk;
+      }
+
+      // Voto sigiloso pré-reveal: o dono sempre lê o próprio; demais só leem após reveal.
+      match /votes/{uid} {
+        allow read: if request.auth != null && (
+          request.auth.uid == uid
+          || get(/databases/$(database)/documents/rooms/$(roomId)).data.round.revealed == true
+        );
+
+        allow create, update: if request.auth != null
+          && request.auth.uid == uid
+          && get(/databases/$(database)/documents/rooms/$(roomId)).data.round.revealed == false
+          && request.resource.data.keys().hasOnly(['value', 'updatedAt'])
+          && request.resource.data.value is string
+          && request.resource.data.value.size() >= 1
+          && request.resource.data.value.size() <= 64
+          && request.resource.data.updatedAt == request.time;
+
+        // Dono limpa o próprio voto (retirar palpite) ou moderador zera no reset.
+        allow delete: if request.auth != null && (
+          request.auth.uid == uid
+          || get(/databases/$(database)/documents/rooms/$(roomId)).data.moderatorUid == request.auth.uid
+        );
       }
     }
   }

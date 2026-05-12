@@ -7,6 +7,7 @@ interface Seat {
   uid: string
   name: string
   vote: string | null
+  hasVoted: boolean
   presence: PresenceState
   isModerator: boolean
   isSelf: boolean
@@ -64,6 +65,7 @@ const cardSize = computed<'xs' | 'sm' | 'md' | 'lg'>(() => {
           :uid="seat.uid"
           :name="seat.name"
           :vote="seat.vote"
+          :has-voted="seat.hasVoted"
           :presence="seat.presence"
           :is-moderator="seat.isModerator"
           :is-self="seat.isSelf"
@@ -94,6 +96,7 @@ const cardSize = computed<'xs' | 'sm' | 'md' | 'lg'>(() => {
             :uid="seat.uid"
             :name="seat.name"
             :vote="seat.vote"
+            :has-voted="seat.hasVoted"
             :presence="seat.presence"
             :is-moderator="seat.isModerator"
             :is-self="seat.isSelf"

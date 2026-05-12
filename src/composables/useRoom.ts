@@ -10,16 +10,19 @@ export function useRoom() {
   const isModerator = computed(() => !!store.room && store.room.moderatorUid === uid.value)
   const me = computed(() => uid.value && store.room ? store.room.participants[uid.value] ?? null : null)
   const inRoom = computed(() => me.value !== null)
+  const myVote = computed(() => store.myVote)
   const seats = computed(() =>
     store.participantsList.map(p => ({
       ...p,
+      vote: store.votes[p.uid] ?? null,
+      hasVoted: !!p.hasVoted,
       presence: presenceFor(p.lastSeenAt),
       isModerator: p.uid === store.room?.moderatorUid,
       isSelf: p.uid === uid.value,
     })),
   )
   const votedCount = computed(() =>
-    store.participantsList.filter(p => p.vote !== null && presenceFor(p.lastSeenAt) !== 'offline').length,
+    store.participantsList.filter(p => !!p.hasVoted && presenceFor(p.lastSeenAt) !== 'offline').length,
   )
   const totalActive = computed(() =>
     store.participantsList.filter(p => presenceFor(p.lastSeenAt) !== 'offline').length,
@@ -33,6 +36,7 @@ export function useRoom() {
     isModerator,
     me,
     inRoom,
+    myVote,
     seats,
     votedCount,
     totalActive,

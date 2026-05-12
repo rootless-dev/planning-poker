@@ -1,7 +1,7 @@
 import { describe, it, beforeAll, afterAll } from 'vitest'
 import { initializeTestEnvironment, type RulesTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing'
 import { readFileSync } from 'node:fs'
-import { doc, setDoc, updateDoc, serverTimestamp, Timestamp } from 'firebase/firestore'
+import { doc, setDoc, updateDoc, deleteDoc, getDoc, serverTimestamp, Timestamp } from 'firebase/firestore'
 
 let env: RulesTestEnvironment
 
@@ -18,12 +18,12 @@ beforeAll(async () => {
 
 afterAll(async () => { await env.cleanup() })
 
-function baseRoom(modUid: string, otherUid?: string) {
+function baseRoom(modUid: string, otherUid?: string, revealed = false) {
   const now = Timestamp.now()
   const participants: Record<string, unknown> = {
-    [modUid]: { name: 'Mod', vote: null, lastSeenAt: now, joinedAt: now },
+    [modUid]: { name: 'Mod', hasVoted: false, lastSeenAt: now, joinedAt: now },
   }
-  if (otherUid) participants[otherUid] = { name: 'Other', vote: null, lastSeenAt: now, joinedAt: now }
+  if (otherUid) participants[otherUid] = { name: 'Other', hasVoted: false, lastSeenAt: now, joinedAt: now }
   return {
     id: 'r1',
     name: 'Sala',
@@ -32,12 +32,12 @@ function baseRoom(modUid: string, otherUid?: string) {
     expiresAt: Timestamp.fromMillis(now.toMillis() + 86_400_000),
     moderatorUid: modUid,
     deck: { type: 'fibonacci', values: ['1', '2', '3'] },
-    round: { taskTitle: '', revealed: false, startedAt: now },
+    round: { taskTitle: '', revealed, startedAt: now },
     participants,
   }
 }
 
-describe('firestore.rules', () => {
+describe('firestore.rules — room doc', () => {
   it('proíbe escrita sem auth', async () => {
     const ctx = env.unauthenticatedContext()
     const room = baseRoom('mod')
@@ -73,13 +73,13 @@ describe('firestore.rules', () => {
     await assertFails(updateDoc(doc(ctx.firestore(), 'rooms', 'r3'), { 'round.revealed': true }))
   })
 
-  it('participante pode atualizar próprio nó (vote/lastSeenAt)', async () => {
+  it('participante pode atualizar próprio nó (hasVoted/lastSeenAt)', async () => {
     await env.withSecurityRulesDisabled(async (admin) => {
       await setDoc(doc(admin.firestore(), 'rooms', 'r4'), baseRoom('mod', 'alice'))
     })
     const ctx = env.authenticatedContext('alice')
     await assertSucceeds(updateDoc(doc(ctx.firestore(), 'rooms', 'r4'), {
-      'participants.alice.vote': '5',
+      'participants.alice.hasVoted': true,
       'participants.alice.lastSeenAt': serverTimestamp(),
       lastActivityAt: serverTimestamp(),
     }))
@@ -91,7 +91,18 @@ describe('firestore.rules', () => {
     })
     const ctx = env.authenticatedContext('alice')
     await assertFails(updateDoc(doc(ctx.firestore(), 'rooms', 'r5'), {
-      'participants.mod.vote': '5',
+      'participants.mod.hasVoted': true,
+    }))
+  })
+
+  it('participante NÃO pode gravar campo `vote` em texto puro dentro do próprio nó', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'rNoPlainVote'), baseRoom('mod', 'alice'))
+    })
+    const ctx = env.authenticatedContext('alice')
+    await assertFails(updateDoc(doc(ctx.firestore(), 'rooms', 'rNoPlainVote'), {
+      'participants.alice.vote': '8',
+      lastActivityAt: serverTimestamp(),
     }))
   })
 
@@ -102,7 +113,7 @@ describe('firestore.rules', () => {
     const ctx = env.authenticatedContext('bob')
     const now = Timestamp.now()
     await assertSucceeds(updateDoc(doc(ctx.firestore(), 'rooms', 'rJoin'), {
-      'participants.bob': { name: 'Bob', vote: null, lastSeenAt: now, joinedAt: now },
+      'participants.bob': { name: 'Bob', hasVoted: false, lastSeenAt: now, joinedAt: now },
       lastActivityAt: serverTimestamp(),
       expiresAt: Timestamp.fromMillis(Date.now() + 86_400_000),
     }))
@@ -160,8 +171,8 @@ describe('firestore.rules', () => {
       await setDoc(doc(admin.firestore(), 'rooms', 'rE4'), {
         ...baseRoom('mod', 'alice'),
         participants: {
-          mod: { name: 'Mod', vote: null, lastSeenAt: past, joinedAt: past },
-          alice: { name: 'Alice', vote: null, lastSeenAt: past, joinedAt: past,
+          mod: { name: 'Mod', hasVoted: false, lastSeenAt: past, joinedAt: past },
+          alice: { name: 'Alice', hasVoted: false, lastSeenAt: past, joinedAt: past,
                    lastEmoji: { value: '🎉', sentAt: past } },
         },
       })
@@ -171,5 +182,102 @@ describe('firestore.rules', () => {
       'participants.alice.lastEmoji': { value: '🔥', sentAt: serverTimestamp() },
       lastActivityAt: serverTimestamp(),
     }))
+  })
+})
+
+describe('firestore.rules — votes subcollection (sigilo pré-reveal)', () => {
+  it('dono escreve próprio voto pré-reveal e consegue lê-lo', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'rV1'), baseRoom('mod', 'alice'))
+    })
+    const ctx = env.authenticatedContext('alice')
+    await assertSucceeds(setDoc(doc(ctx.firestore(), 'rooms', 'rV1', 'votes', 'alice'), {
+      value: '8', updatedAt: serverTimestamp(),
+    }))
+    await assertSucceeds(getDoc(doc(ctx.firestore(), 'rooms', 'rV1', 'votes', 'alice')))
+  })
+
+  it('alice NÃO pode ler o voto do bob pré-reveal', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'rV2'), baseRoom('mod', 'bob'))
+      await setDoc(doc(admin.firestore(), 'rooms', 'rV2', 'votes', 'bob'), {
+        value: '5', updatedAt: Timestamp.now(),
+      })
+    })
+    const aliceCtx = env.authenticatedContext('alice')
+    await assertFails(getDoc(doc(aliceCtx.firestore(), 'rooms', 'rV2', 'votes', 'bob')))
+  })
+
+  it('alice PODE ler o voto do bob pós-reveal', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'rV3'), baseRoom('mod', 'bob', true))
+      await setDoc(doc(admin.firestore(), 'rooms', 'rV3', 'votes', 'bob'), {
+        value: '5', updatedAt: Timestamp.now(),
+      })
+    })
+    const aliceCtx = env.authenticatedContext('alice')
+    await assertSucceeds(getDoc(doc(aliceCtx.firestore(), 'rooms', 'rV3', 'votes', 'bob')))
+  })
+
+  it('alice NÃO pode escrever no documento de voto do bob', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'rV4'), baseRoom('mod', 'bob'))
+    })
+    const aliceCtx = env.authenticatedContext('alice')
+    await assertFails(setDoc(doc(aliceCtx.firestore(), 'rooms', 'rV4', 'votes', 'bob'), {
+      value: '13', updatedAt: serverTimestamp(),
+    }))
+  })
+
+  it('escrita de voto pós-reveal é bloqueada (round congelado)', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'rV5'), baseRoom('mod', 'alice', true))
+    })
+    const aliceCtx = env.authenticatedContext('alice')
+    await assertFails(setDoc(doc(aliceCtx.firestore(), 'rooms', 'rV5', 'votes', 'alice'), {
+      value: '8', updatedAt: serverTimestamp(),
+    }))
+  })
+
+  it('rejeita value > 64 bytes', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'rV6'), baseRoom('mod', 'alice'))
+    })
+    const aliceCtx = env.authenticatedContext('alice')
+    await assertFails(setDoc(doc(aliceCtx.firestore(), 'rooms', 'rV6', 'votes', 'alice'), {
+      value: 'x'.repeat(65), updatedAt: serverTimestamp(),
+    }))
+  })
+
+  it('rejeita campos fora do schema (extra key)', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'rV7'), baseRoom('mod', 'alice'))
+    })
+    const aliceCtx = env.authenticatedContext('alice')
+    await assertFails(setDoc(doc(aliceCtx.firestore(), 'rooms', 'rV7', 'votes', 'alice'), {
+      value: '8', updatedAt: serverTimestamp(), spoof: '<script>',
+    }))
+  })
+
+  it('moderador pode deletar voto de qualquer participante (reset)', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'rV8'), baseRoom('mod', 'bob'))
+      await setDoc(doc(admin.firestore(), 'rooms', 'rV8', 'votes', 'bob'), {
+        value: '5', updatedAt: Timestamp.now(),
+      })
+    })
+    const modCtx = env.authenticatedContext('mod')
+    await assertSucceeds(deleteDoc(doc(modCtx.firestore(), 'rooms', 'rV8', 'votes', 'bob')))
+  })
+
+  it('participante comum NÃO pode deletar voto de outro', async () => {
+    await env.withSecurityRulesDisabled(async (admin) => {
+      await setDoc(doc(admin.firestore(), 'rooms', 'rV9'), baseRoom('mod', 'bob'))
+      await setDoc(doc(admin.firestore(), 'rooms', 'rV9', 'votes', 'bob'), {
+        value: '5', updatedAt: Timestamp.now(),
+      })
+    })
+    const aliceCtx = env.authenticatedContext('alice')
+    await assertFails(deleteDoc(doc(aliceCtx.firestore(), 'rooms', 'rV9', 'votes', 'bob')))
   })
 })
