@@ -128,15 +128,15 @@ export function useThinking(opts: UseThinkingOptions): UseThinkingApi {
     }
   }
 
-  // Reset em voto: quando o próprio uid passa de vote=null para !=null, sai do estado
+  // Reset em voto: quando o próprio uid passa de hasVoted=false para true, sai do estado
   watch(
     () => {
       const uid = opts.myUid.value
-      if (!uid) return null
-      return opts.room.value?.participants[uid]?.vote ?? null
+      if (!uid) return false
+      return !!opts.room.value?.participants[uid]?.hasVoted
     },
-    (newVote, oldVote) => {
-      if (oldVote == null && newVote != null) {
+    (nowVoted, wasVoted) => {
+      if (!wasVoted && nowVoted) {
         // O write de setVote já limpa thinkingUntil. Aqui só zeramos o state local.
         clearAllTimers()
         state = 'idle'

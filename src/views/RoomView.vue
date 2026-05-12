@@ -25,7 +25,10 @@ const room = useRoom()
 const { uid } = useAuth()
 const toasts = useToasts()
 
-room.watch(props.id)
+room.watch(props.id, uid.value)
+watch(uid, (next, prev) => {
+  if (next && next !== prev) room.watch(props.id, next)
+})
 onBeforeUnmount(room.dispose)
 
 const showJoin = computed(() => !room.loading.value && !room.notFound.value && !room.inRoom.value)
@@ -196,7 +199,7 @@ onBeforeUnmount(() => {
 
       <Hand
         :values="room.room.value.deck.values"
-        :selected="room.me.value?.vote ?? null"
+        :selected="room.myVote.value"
         :disabled="room.room.value.round.revealed"
         @select="onPick"
         @area-enter="thinking.onAreaEnter"

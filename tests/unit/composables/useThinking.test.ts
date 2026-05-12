@@ -24,14 +24,14 @@ function ts(ms: number) {
 }
 
 function roomWith(
-  parts: Record<string, { thinkingUntil?: Timestamp; vote?: string | null }>,
+  parts: Record<string, { thinkingUntil?: Timestamp; hasVoted?: boolean }>,
   revealed = false,
 ): Room {
   const baseParts: Room['participants'] = {}
   for (const [uid, p] of Object.entries(parts)) {
     baseParts[uid] = {
       name: uid,
-      vote: p.vote !== undefined ? p.vote : null,
+      hasVoted: !!p.hasVoted,
       lastSeenAt: ts(Date.now()),
       joinedAt: ts(Date.now()),
       ...(p.thinkingUntil ? { thinkingUntil: p.thinkingUntil } : {}),
@@ -256,7 +256,7 @@ describe('useThinking — emitter', () => {
     cleanup()
   })
 
-  it('quando me.vote muda para não-null, state machine reseta (sem novo write)', async () => {
+  it('quando me.hasVoted vira true, state machine reseta (sem novo write)', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: false })
     const { setThinking } = await import('@/services/firebase/rooms')
     const { useThinking } = await import('@/composables/useThinking')
@@ -268,9 +268,7 @@ describe('useThinking — emitter', () => {
     t.onAreaEnter()
     vi.advanceTimersByTime(1000) // 1 write
     // simula voto chegando
-    const r = roomWith({ me: {} })
-    r.participants.me.vote = '5'
-    room.value = r
+    room.value = roomWith({ me: { hasVoted: true } })
     await nextTick()
     vi.advanceTimersByTime(5000)
     t.onAreaMove()

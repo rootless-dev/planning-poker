@@ -25,7 +25,8 @@ describe('createRoom', () => {
     expect(data.moderatorUid).toBe(env.uid)
     expect(data.deck.type).toBe('fibonacci')
     expect(data.participants[env.uid].name).toBe('Carlos')
-    expect(data.participants[env.uid].vote).toBeNull()
+    expect(data.participants[env.uid].hasVoted).toBe(false)
+    expect(data.participants[env.uid].vote).toBeUndefined()
     expect(data.round.revealed).toBe(false)
 
     vi.doUnmock('@/services/firebase/index')

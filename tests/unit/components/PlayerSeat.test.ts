@@ -8,6 +8,7 @@ const base = {
   uid: 'u1',
   name: 'Alice',
   vote: null,
+  hasVoted: false,
   presence: 'online' as const,
   revealed: false,
 }

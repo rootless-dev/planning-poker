@@ -73,8 +73,10 @@ describe('thinking service + rules', () => {
     await setVote(id, env.uid, '5')
     const snap = await getDoc(doc(env.db, 'rooms', id))
     const data = snap.data()!
-    expect(data.participants[env.uid].vote).toBe('5')
+    expect(data.participants[env.uid].hasVoted).toBe(true)
     expect(data.participants[env.uid].thinkingUntil).toBeUndefined()
+    const voteSnap = await getDoc(doc(env.db, 'rooms', id, 'votes', env.uid))
+    expect(voteSnap.data()!.value).toBe('5')
 
     vi.doUnmock('@/services/firebase/index')
     await env.cleanup()

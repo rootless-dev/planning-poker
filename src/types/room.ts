@@ -23,11 +23,16 @@ export interface EmojiEvent {
 
 export interface Participant {
   name: string
-  vote: string | null
+  hasVoted: boolean
   lastSeenAt: Timestamp
   joinedAt: Timestamp
   lastEmoji?: EmojiEvent
   thinkingUntil?: Timestamp
+}
+
+export interface Vote {
+  value: string
+  updatedAt: Timestamp
 }
 
 export interface Round {

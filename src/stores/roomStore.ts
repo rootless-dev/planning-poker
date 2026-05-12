@@ -1,21 +1,50 @@
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch as vueWatch } from 'vue'
 import type { Room } from '@/types/room'
-import { subscribeToRoom, type Unsubscribe } from '@/services/firebase/rooms'
+import {
+  subscribeToRoom,
+  subscribeToOwnVote,
+  subscribeToAllVotes,
+  type Unsubscribe,
+} from '@/services/firebase/rooms'
 
 export const useRoomStore = defineStore('room', () => {
   const room = ref<Room | null>(null)
   const loading = ref(true)
   const notFound = ref(false)
   const error = ref<string | null>(null)
-  let unsub: Unsubscribe | null = null
+  const myVote = ref<string | null>(null)
+  const allVotes = ref<Record<string, string>>({})
 
-  function watch(roomId: string) {
+  let unsubRoom: Unsubscribe | null = null
+  let unsubOwnVote: Unsubscribe | null = null
+  let unsubAllVotes: Unsubscribe | null = null
+  let watchedRoomId: string | null = null
+  let watchedUid: string | null = null
+
+  // Liga/desliga a subscrição da coleção `votes` conforme `round.revealed` muda.
+  // Antes do reveal as rules bloqueariam essa query; só lemos próprio voto.
+  vueWatch(
+    () => room.value?.round.revealed ?? false,
+    (revealed) => {
+      if (revealed && watchedRoomId && !unsubAllVotes) {
+        unsubAllVotes = subscribeToAllVotes(watchedRoomId, (vs) => { allVotes.value = vs })
+      } else if (!revealed && unsubAllVotes) {
+        unsubAllVotes()
+        unsubAllVotes = null
+        allVotes.value = {}
+      }
+    },
+  )
+
+  function watch(roomId: string, uid: string | null) {
     dispose()
+    watchedRoomId = roomId
+    watchedUid = uid
     loading.value = true
     notFound.value = false
     error.value = null
-    unsub = subscribeToRoom(
+    unsubRoom = subscribeToRoom(
       roomId,
       (r) => {
         loading.value = false
@@ -32,12 +61,23 @@ export const useRoomStore = defineStore('room', () => {
         error.value = err.message
       },
     )
+    if (uid) {
+      unsubOwnVote = subscribeToOwnVote(roomId, uid, (v) => { myVote.value = v })
+    }
   }
 
   function dispose() {
-    unsub?.()
-    unsub = null
+    unsubRoom?.()
+    unsubOwnVote?.()
+    unsubAllVotes?.()
+    unsubRoom = null
+    unsubOwnVote = null
+    unsubAllVotes = null
     room.value = null
+    myVote.value = null
+    allVotes.value = {}
+    watchedRoomId = null
+    watchedUid = null
     loading.value = true
     notFound.value = false
     error.value = null
@@ -54,5 +94,22 @@ export const useRoomStore = defineStore('room', () => {
       })
   })
 
-  return { room, loading, notFound, error, watch, dispose, participantsList }
+  // Votos visíveis para o cliente atual: revelados (pós-reveal) + próprio voto sempre.
+  const votes = computed<Record<string, string>>(() => {
+    const out: Record<string, string> = { ...allVotes.value }
+    if (watchedUid && myVote.value !== null) out[watchedUid] = myVote.value
+    return out
+  })
+
+  return {
+    room,
+    loading,
+    notFound,
+    error,
+    myVote,
+    votes,
+    watch,
+    dispose,
+    participantsList,
+  }
 })
