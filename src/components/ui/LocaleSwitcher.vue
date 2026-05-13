@@ -6,6 +6,7 @@ import type { Locale } from '@/i18n'
 const { current, setLocale, supported } = useLocale()
 const open = ref(false)
 const rootRef = ref<HTMLElement | null>(null)
+const triggerRef = ref<HTMLButtonElement | null>(null)
 
 const SHORT: Record<Locale, string> = { 'pt-BR': 'PT', en: 'EN', es: 'ES' }
 const NATIVE: Record<Locale, string> = { 'pt-BR': 'Português', en: 'English', es: 'Español' }
@@ -17,7 +18,14 @@ function close() { open.value = false }
 
 function choose(loc: Locale) {
   setLocale(loc)
-  close()
+  open.value = false
+  triggerRef.value?.focus()
+}
+
+function onEsc() {
+  if (!open.value) return
+  open.value = false
+  triggerRef.value?.focus()
 }
 
 function onDocClick(e: MouseEvent) {
@@ -30,8 +38,9 @@ onBeforeUnmount(() => window.removeEventListener('click', onDocClick))
 </script>
 
 <template>
-  <div ref="rootRef" class="locale-switcher" @keydown.esc="close">
+  <div ref="rootRef" class="locale-switcher" @keydown.esc="onEsc">
     <button
+      ref="triggerRef"
       type="button"
       class="locale-trigger"
       aria-haspopup="listbox"
@@ -48,7 +57,7 @@ onBeforeUnmount(() => window.removeEventListener('click', onDocClick))
       class="locale-menu"
       role="listbox"
       tabindex="-1"
-      @keydown.esc="close"
+      @keydown.esc="onEsc"
     >
       <li
         v-for="loc in supported"
