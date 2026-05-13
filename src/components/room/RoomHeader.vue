@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useToasts } from '@/composables/useToasts'
 import Modal from '@/components/ui/Modal.vue'
 import GhostButton from '@/components/ui/GhostButton.vue'
@@ -15,6 +16,7 @@ const props = defineProps<{
 }>()
 const emit = defineEmits<{ rename: [title: string] }>()
 
+const { t } = useI18n()
 const editing = ref(false)
 const draft = ref(props.taskTitle)
 watch(() => props.taskTitle, v => { if (!editing.value) draft.value = v })
@@ -36,22 +38,22 @@ async function writeToClipboard(value: string, successMsg: string) {
     await navigator.clipboard.writeText(value)
     toasts.push(successMsg, 'success')
   } catch {
-    toasts.push('Não consegui copiar — copie da barra de endereço', 'error')
+    toasts.push(t('room.copyError'), 'error')
   }
 }
 
 function copyFullLink() {
-  void writeToClipboard(fullLink.value, 'Link copiado')
+  void writeToClipboard(fullLink.value, t('room.copyLinkSuccess'))
 }
 
 function copySessionId() {
-  void writeToClipboard(sessionId.value, 'ID copiado')
+  void writeToClipboard(sessionId.value, t('room.copyIdSuccess'))
 }
 
 const status = computed(() => {
-  if (props.revealed) return 'Revelado'
-  if (props.totalActive === 0) return 'Sem jogadores'
-  return `${props.votedCount} de ${props.totalActive} votaram`
+  if (props.revealed) return t('room.statusRevealed')
+  if (props.totalActive === 0) return t('room.statusNoPlayers')
+  return t('room.statusVoting', { voted: props.votedCount, total: props.totalActive })
 })
 </script>
 
@@ -59,26 +61,26 @@ const status = computed(() => {
   <header class="room-header">
     <div class="row top">
       <div class="meta">
-        <span class="kicker">Sessão · {{ totalActive }} {{ totalActive === 1 ? 'jogador' : 'jogadores' }}</span>
+        <span class="kicker">{{ t('room.session') }} · {{ t('room.players', totalActive, { named: { n: totalActive } }) }}</span>
         <h1 class="room-name">{{ roomName }}</h1>
       </div>
       <button type="button" @click="showShare = true" class="link-btn">
         <span class="dot" aria-hidden="true">↗</span>
-        <span>Copiar link</span>
+        <span>{{ t('room.copyLink') }}</span>
       </button>
     </div>
 
-    <Modal :open="showShare" kicker="Compartilhar" title="Convide para a mesa" size="sm" @close="showShare = false">
+    <Modal :open="showShare" :kicker="t('room.share')" :title="t('room.shareTitle')" size="sm" @close="showShare = false">
       <div class="share-stack">
         <div class="share-row">
-          <span class="share-label kicker">Link completo</span>
+          <span class="share-label kicker">{{ t('room.fullLink') }}</span>
           <code class="share-value">{{ fullLink }}</code>
-          <GhostButton @click="copyFullLink">Copiar</GhostButton>
+          <GhostButton @click="copyFullLink">{{ t('room.copy') }}</GhostButton>
         </div>
         <div class="share-row">
-          <span class="share-label kicker">ID da sessão</span>
+          <span class="share-label kicker">{{ t('room.sessionId') }}</span>
           <code class="share-value">{{ sessionId }}</code>
-          <GhostButton @click="copySessionId">Copiar</GhostButton>
+          <GhostButton @click="copySessionId">{{ t('room.copy') }}</GhostButton>
         </div>
       </div>
     </Modal>
@@ -87,14 +89,14 @@ const status = computed(() => {
 
     <div class="row bottom">
       <div class="task">
-        <span class="kicker">Estimando</span>
+        <span class="kicker">{{ t('room.estimating') }}</span>
         <button
           v-if="isModerator && !editing"
           type="button"
           @click="editing = true"
           class="task-text editable"
         >
-          <span>{{ taskTitle || 'Defina o que estamos estimando' }}</span>
+          <span>{{ taskTitle || t('room.estimatingEmpty') }}</span>
           <span class="pencil" aria-hidden="true">✎</span>
         </button>
         <span v-else-if="!editing" class="task-text">{{ taskTitle || '—' }}</span>

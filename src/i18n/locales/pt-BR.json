@@ -77,5 +77,42 @@
         "s4": { "title": "Revele e veja as estatísticas", "description": "Média, moda, distribuição na hora." }
       }
     }
+  },
+  "room": {
+    "loading": "Carregando",
+    "loadingHint": "Distribuindo o baralho…",
+    "notFoundKicker": "Sala fechada",
+    "notFoundTitle": "Essa mesa não existe ou expirou",
+    "notFoundHint": "Volte para a entrada e abra uma nova rodada.",
+    "goHome": "Ir para a home →",
+    "errorKicker": "Erro",
+    "errorTitle": "Algo deu errado",
+    "verdict": "Veredicto",
+    "verdictTitle": "A mesa fala",
+    "closeResults": "Fechar",
+    "newRound": "Nova rodada",
+    "session": "Sessão",
+    "players": "nenhum jogador | {n} jogador | {n} jogadores",
+    "copyLink": "Copiar link",
+    "share": "Compartilhar",
+    "shareTitle": "Convide para a mesa",
+    "fullLink": "Link completo",
+    "sessionId": "ID da sessão",
+    "copy": "Copiar",
+    "estimating": "Estimando",
+    "estimatingEmpty": "Defina o que estamos estimando",
+    "statusRevealed": "Revelado",
+    "statusNoPlayers": "Sem jogadores",
+    "statusVoting": "{voted} de {total} votaram",
+    "join": {
+      "kicker": "Sala",
+      "title": "Como devemos te chamar?",
+      "placeholder": "Seu nome",
+      "submit": "Entrar"
+    },
+    "kicked": "Você foi removido da sala",
+    "copyError": "Não consegui copiar — copie da barra de endereço",
+    "copyLinkSuccess": "Link copiado",
+    "copyIdSuccess": "ID copiado"
   }
 }

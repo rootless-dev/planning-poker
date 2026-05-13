@@ -77,5 +77,42 @@
         "s4": { "title": "Reveal and see the stats", "description": "Average, mode, distribution on the spot." }
       }
     }
+  },
+  "room": {
+    "loading": "Loading",
+    "loadingHint": "Dealing the deck…",
+    "notFoundKicker": "Closed room",
+    "notFoundTitle": "This table doesn't exist or has expired",
+    "notFoundHint": "Head back home and open a new round.",
+    "goHome": "Go home →",
+    "errorKicker": "Error",
+    "errorTitle": "Something went wrong",
+    "verdict": "Verdict",
+    "verdictTitle": "The table speaks",
+    "closeResults": "Close",
+    "newRound": "New round",
+    "session": "Session",
+    "players": "no players | {n} player | {n} players",
+    "copyLink": "Copy link",
+    "share": "Share",
+    "shareTitle": "Invite to the table",
+    "fullLink": "Full link",
+    "sessionId": "Session ID",
+    "copy": "Copy",
+    "estimating": "Estimating",
+    "estimatingEmpty": "Set what we're estimating",
+    "statusRevealed": "Revealed",
+    "statusNoPlayers": "No players",
+    "statusVoting": "{voted} of {total} voted",
+    "join": {
+      "kicker": "Room",
+      "title": "What should we call you?",
+      "placeholder": "Your name",
+      "submit": "Enter"
+    },
+    "kicked": "You were removed from the room",
+    "copyError": "Couldn't copy — copy from the address bar",
+    "copyLinkSuccess": "Link copied",
+    "copyIdSuccess": "ID copied"
   }
 }
