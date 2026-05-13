@@ -33,5 +33,27 @@
       "builtWith": "Hecho con Vue + Firebase.",
       "codeOnGitHub": "Código en GitHub"
     }
+  },
+  "decks": {
+    "fibonacci": { "name": "Fibonacci", "description": "Clásico ágil. Granularidad pequeña al inicio." },
+    "fibonacci-modified": { "name": "Fibonacci modificado", "description": "Añade medio punto y valores altos para épicas." },
+    "tshirt": { "name": "T-shirt", "description": "Tamaños abstractos — sin anclaje en horas." },
+    "powers-of-2": { "name": "Potencias de 2", "description": "Crecimiento exponencial — bueno para complejidad técnica." },
+    "sequential": { "name": "Secuencial 1–10", "description": "Escala lineal — granularidad fina y uniforme." },
+    "hours": { "name": "Horas", "description": "Estimación directa en horas para tareas pequeñas." },
+    "risk": { "name": "Riesgo", "description": "Evaluación cualitativa para spikes y análisis de impacto." },
+    "yes-no": { "name": "Sí / No", "description": "Decisión binaria para go/no-go." },
+    "custom": "Personalizado",
+    "fieldLabel": "Baraja",
+    "customEditor": {
+      "label": "Valores de la baraja",
+      "placeholder": "escribe y pulsa Enter…",
+      "hint": "Enter agrega · Backspace quita · mínimo 2 valores",
+      "removeChip": "Quitar {value}"
+    },
+    "errors": {
+      "needTwoValues": "La baraja personalizada necesita al menos 2 valores únicos",
+      "unknownType": "Tipo de baraja desconocido: {type}"
+    }
   }
 }

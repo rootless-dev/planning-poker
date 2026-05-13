@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ modelValue: string }>()
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
+
+const { t } = useI18n()
 
 const MAX_CHIPS = 30
 
@@ -81,14 +84,14 @@ defineExpose({
 
 <template>
   <div class="chip-field">
-    <span class="field-label kicker">Valores do baralho</span>
+    <span class="field-label kicker">{{ t('decks.customEditor.label') }}</span>
     <div class="chip-wrap" @click="inputRef?.focus()">
       <span v-for="(c, i) in chips" :key="`${i}-${c}`" class="chip">
         {{ c }}
         <button
           type="button"
           class="chip-remove"
-          :aria-label="`Remover ${c}`"
+          :aria-label="t('decks.customEditor.removeChip', { value: c })"
           @click.stop="removeAt(i)"
         >×</button>
       </span>
@@ -97,13 +100,13 @@ defineExpose({
         type="text"
         class="chip-input"
         v-model="typing"
-        :placeholder="chips.length === 0 ? 'digite e tecle Enter…' : ''"
+        :placeholder="chips.length === 0 ? t('decks.customEditor.placeholder') : ''"
         @keydown="onKeydown"
         @blur="onBlur"
         @paste="onPaste"
       />
     </div>
-    <p class="chip-hint kicker">Enter adiciona · Backspace remove · mínimo 2 valores</p>
+    <p class="chip-hint kicker">{{ t('decks.customEditor.hint') }}</p>
   </div>
 </template>
 

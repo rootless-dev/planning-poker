@@ -33,5 +33,27 @@
       "builtWith": "Construído com Vue + Firebase.",
       "codeOnGitHub": "Código no GitHub"
     }
+  },
+  "decks": {
+    "fibonacci": { "name": "Fibonacci", "description": "Clássico ágil. Granularidade pequena no início." },
+    "fibonacci-modified": { "name": "Fibonacci modificado", "description": "Estende com meio ponto e valores altos para épicos." },
+    "tshirt": { "name": "T-shirt", "description": "Tamanhos abstratos, sem ancoragem em horas." },
+    "powers-of-2": { "name": "Potências de 2", "description": "Crescimento exponencial — bom para complexidade técnica." },
+    "sequential": { "name": "Sequencial 1–10", "description": "Escala linear — granularidade fina e uniforme." },
+    "hours": { "name": "Horas", "description": "Estimativa direta em horas para tarefas pequenas." },
+    "risk": { "name": "Risco", "description": "Avaliação qualitativa para spikes e análise de impacto." },
+    "yes-no": { "name": "Sim / Não", "description": "Decisão binária para go/no-go." },
+    "custom": "Customizado",
+    "fieldLabel": "Baralho",
+    "customEditor": {
+      "label": "Valores do baralho",
+      "placeholder": "digite e tecle Enter…",
+      "hint": "Enter adiciona · Backspace remove · mínimo 2 valores",
+      "removeChip": "Remover {value}"
+    },
+    "errors": {
+      "needTwoValues": "Deck custom precisa de ao menos 2 valores únicos",
+      "unknownType": "Tipo de deck desconhecido: {type}"
+    }
   }
 }

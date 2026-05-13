@@ -1,59 +1,60 @@
 import type { Deck, DeckType } from '@/types/room'
+import { i18n } from '@/i18n'
 
 export interface DeckPreset {
   type: Exclude<DeckType, 'custom'>
-  label: string
-  description: string
+  labelKey: string
+  descKey: string
   values: readonly string[]
 }
 
 export const DECK_PRESETS: readonly DeckPreset[] = [
   {
     type: 'fibonacci',
-    label: 'Fibonacci',
-    description: 'Clássico ágil. Granularidade pequena no início.',
+    labelKey: 'decks.fibonacci.name',
+    descKey: 'decks.fibonacci.description',
     values: ['0', '1', '2', '3', '5', '8', '13', '21', '?', '☕'],
   },
   {
     type: 'fibonacci-modified',
-    label: 'Fibonacci modificado',
-    description: 'Estende com meio ponto e valores altos para épicos.',
+    labelKey: 'decks.fibonacci-modified.name',
+    descKey: 'decks.fibonacci-modified.description',
     values: ['0', '½', '1', '2', '3', '5', '8', '13', '20', '40', '100', '?', '☕'],
   },
   {
     type: 'tshirt',
-    label: 'T-shirt',
-    description: 'Tamanhos abstratos, sem ancoragem em horas.',
+    labelKey: 'decks.tshirt.name',
+    descKey: 'decks.tshirt.description',
     values: ['XS', 'S', 'M', 'L', 'XL', 'XXL', '?', '☕'],
   },
   {
     type: 'powers-of-2',
-    label: 'Potências de 2',
-    description: 'Crescimento exponencial — bom para complexidade técnica.',
+    labelKey: 'decks.powers-of-2.name',
+    descKey: 'decks.powers-of-2.description',
     values: ['1', '2', '4', '8', '16', '32', '64', '?', '☕'],
   },
   {
     type: 'sequential',
-    label: 'Sequencial 1–10',
-    description: 'Escala linear — granularidade fina e uniforme.',
+    labelKey: 'decks.sequential.name',
+    descKey: 'decks.sequential.description',
     values: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '?', '☕'],
   },
   {
     type: 'hours',
-    label: 'Horas',
-    description: 'Estimativa direta em horas para tarefas pequenas.',
+    labelKey: 'decks.hours.name',
+    descKey: 'decks.hours.description',
     values: ['½h', '1h', '2h', '4h', '8h', '16h', '?', '☕'],
   },
   {
     type: 'risk',
-    label: 'Risco',
-    description: 'Avaliação qualitativa para spikes e análise de impacto.',
+    labelKey: 'decks.risk.name',
+    descKey: 'decks.risk.description',
     values: ['Baixo', 'Médio', 'Alto', 'Crítico', '?'],
   },
   {
     type: 'yes-no',
-    label: 'Sim / Não',
-    description: 'Decisão binária para go/no-go.',
+    labelKey: 'decks.yes-no.name',
+    descKey: 'decks.yes-no.description',
     values: ['Sim', 'Não', '?'],
   },
 ] as const
@@ -72,14 +73,14 @@ export function buildDeck(opts: BuildOptions): Deck {
       .filter(v => v.length > 0)
     const unique = Array.from(new Set(cleaned))
     if (unique.length < 2) {
-      throw new Error('Deck custom precisa de ao menos 2 valores únicos')
+      throw new Error(i18n.global.t('decks.errors.needTwoValues'))
     }
     return { type: 'custom', values: unique }
   }
 
   const preset = DECK_PRESETS.find(p => p.type === opts.type)
   if (!preset) {
-    throw new Error(`DeckType desconhecido: ${opts.type}`)
+    throw new Error(i18n.global.t('decks.errors.unknownType', { type: opts.type }))
   }
   return { type: preset.type, values: [...preset.values] }
 }

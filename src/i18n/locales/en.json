@@ -33,5 +33,27 @@
       "builtWith": "Built with Vue + Firebase.",
       "codeOnGitHub": "Code on GitHub"
     }
+  },
+  "decks": {
+    "fibonacci": { "name": "Fibonacci", "description": "Agile classic. Small granularity at the low end." },
+    "fibonacci-modified": { "name": "Modified Fibonacci", "description": "Adds a half point and large values for epics." },
+    "tshirt": { "name": "T-shirt", "description": "Abstract sizes — no anchoring to hours." },
+    "powers-of-2": { "name": "Powers of 2", "description": "Exponential growth — great for technical complexity." },
+    "sequential": { "name": "Sequential 1–10", "description": "Linear scale — fine, uniform granularity." },
+    "hours": { "name": "Hours", "description": "Direct estimate in hours for small tasks." },
+    "risk": { "name": "Risk", "description": "Qualitative assessment for spikes and impact analysis." },
+    "yes-no": { "name": "Yes / No", "description": "Binary decision for go/no-go." },
+    "custom": "Custom",
+    "fieldLabel": "Deck",
+    "customEditor": {
+      "label": "Deck values",
+      "placeholder": "type and press Enter…",
+      "hint": "Enter to add · Backspace to remove · minimum 2 values",
+      "removeChip": "Remove {value}"
+    },
+    "errors": {
+      "needTwoValues": "Custom deck needs at least 2 unique values",
+      "unknownType": "Unknown deck type: {type}"
+    }
   }
 }

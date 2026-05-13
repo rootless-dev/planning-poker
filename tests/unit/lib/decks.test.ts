@@ -16,10 +16,10 @@ describe('DECK_PRESETS', () => {
     ])
   })
 
-  it('todo preset tem label, description e pelo menos 2 valores', () => {
+  it('todo preset tem labelKey, descKey e pelo menos 2 valores', () => {
     for (const p of DECK_PRESETS) {
-      expect(p.label.length).toBeGreaterThan(0)
-      expect(p.description.length).toBeGreaterThan(0)
+      expect(p.labelKey.length).toBeGreaterThan(0)
+      expect(p.descKey.length).toBeGreaterThan(0)
       expect(p.values.length).toBeGreaterThanOrEqual(2)
     }
   })
@@ -89,12 +89,12 @@ describe('buildDeck — custom', () => {
 
   it('rejeita custom vazio', () => {
     expect(() => buildDeck({ type: 'custom', customValues: ['', ' '] }))
-      .toThrow(/precisa de ao menos 2 valores/i)
+      .toThrow(/2.*(?:valores|values)/i)
   })
 
   it('rejeita custom com 1 valor', () => {
     expect(() => buildDeck({ type: 'custom', customValues: ['7'] }))
-      .toThrow(/precisa de ao menos 2 valores/i)
+      .toThrow(/2.*(?:valores|values)/i)
   })
 })
 
