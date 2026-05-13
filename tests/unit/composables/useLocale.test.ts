@@ -15,8 +15,6 @@ const Harness = defineComponent({
 describe('useLocale', () => {
   beforeEach(() => {
     localStorage.clear()
-    i18n.global.locale.value = 'pt-BR'
-    document.documentElement.lang = 'pt-BR'
   })
 
   it('expõe o locale atual', () => {

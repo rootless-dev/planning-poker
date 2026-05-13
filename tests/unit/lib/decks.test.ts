@@ -89,12 +89,12 @@ describe('buildDeck — custom', () => {
 
   it('rejeita custom vazio', () => {
     expect(() => buildDeck({ type: 'custom', customValues: ['', ' '] }))
-      .toThrow(/2.*(?:valores|values)/i)
+      .toThrow(/precisa de ao menos 2 valores/i)
   })
 
   it('rejeita custom com 1 valor', () => {
     expect(() => buildDeck({ type: 'custom', customValues: ['7'] }))
-      .toThrow(/2.*(?:valores|values)/i)
+      .toThrow(/precisa de ao menos 2 valores/i)
   })
 })
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import LocaleSwitcher from '@/components/ui/LocaleSwitcher.vue'
 import { i18n } from '@/i18n'
@@ -6,12 +6,6 @@ import { i18n } from '@/i18n'
 describe('LocaleSwitcher', () => {
   beforeEach(() => {
     localStorage.clear()
-    i18n.global.locale.value = 'pt-BR'
-    document.documentElement.lang = 'pt-BR'
-  })
-
-  afterEach(() => {
-    i18n.global.locale.value = 'pt-BR'
   })
 
   it('renderiza a sigla do locale atual', () => {
