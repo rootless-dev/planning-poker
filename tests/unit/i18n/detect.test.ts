@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterAll } from 'vitest'
 import { detectInitialLocale, type Locale } from '@/i18n'
 
 function setNavigatorLanguage(lang: string) {
@@ -8,9 +8,18 @@ function setNavigatorLanguage(lang: string) {
   })
 }
 
+const originalLanguage = navigator.language
+
 describe('detectInitialLocale', () => {
   beforeEach(() => {
     localStorage.clear()
+  })
+
+  afterAll(() => {
+    Object.defineProperty(navigator, 'language', {
+      value: originalLanguage,
+      configurable: true,
+    })
   })
 
   it('respeita localStorage quando válido', () => {

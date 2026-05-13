@@ -8,7 +8,11 @@ export function useLocale() {
 
   function setLocale(next: Locale) {
     locale.value = next
-    localStorage.setItem(LOCALE_STORAGE_KEY, next)
+    try {
+      localStorage.setItem(LOCALE_STORAGE_KEY, next)
+    } catch {
+      // best-effort; troca em runtime continua válida
+    }
     document.documentElement.lang = next
   }
 
