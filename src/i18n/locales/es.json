@@ -2,5 +2,11 @@
   "_meta": {
     "name": "Español",
     "code": "es"
+  },
+  "header": {
+    "githubRepo": "Repositorio en GitHub",
+    "toggleTheme": "Alternar tema",
+    "themeLight": "Daybreak",
+    "themeDark": "Lounge"
   }
 }

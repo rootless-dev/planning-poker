@@ -2,5 +2,11 @@
   "_meta": {
     "name": "English",
     "code": "en"
+  },
+  "header": {
+    "githubRepo": "GitHub repository",
+    "toggleTheme": "Toggle theme",
+    "themeLight": "Daybreak",
+    "themeDark": "Lounge"
   }
 }
