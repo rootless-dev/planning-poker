@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 defineProps<{ cooldownRemainingMs: number }>()
 const emit = defineEmits<{ select: [value: string]; close: [] }>()
 
+const { t } = useI18n()
 const ready = ref(false)
 
 onMounted(async () => {
@@ -24,15 +26,15 @@ function onPickerClick(e: Event) {
 
 <template>
   <Transition name="panel" appear>
-    <aside class="emoji-panel" role="dialog" aria-label="Reagir com emoji" @keydown.esc="emit('close')">
+    <aside class="emoji-panel" role="dialog" :aria-label="t('room.emoji.panelAriaLabel')" @keydown.esc="emit('close')">
       <header class="panel-head">
-        <h3>Reagir</h3>
-        <button type="button" aria-label="Fechar" @click="emit('close')">×</button>
+        <h3>{{ t('room.emoji.title') }}</h3>
+        <button type="button" :aria-label="t('common.close')" @click="emit('close')">×</button>
       </header>
       <div class="picker-wrap" :class="{ disabled: cooldownRemainingMs > 0 }">
         <emoji-picker v-if="ready" @emoji-click="onPickerClick" />
-        <p v-else class="loading">Carregando…</p>
-        <div v-if="cooldownRemainingMs > 0" class="cooldown-overlay">aguarde…</div>
+        <p v-else class="loading">{{ t('room.emoji.loading') }}</p>
+        <div v-if="cooldownRemainingMs > 0" class="cooldown-overlay">{{ t('room.emoji.cooldown') }}</div>
       </div>
     </aside>
   </Transition>

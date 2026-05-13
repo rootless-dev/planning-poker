@@ -113,6 +113,34 @@
     "kicked": "Você foi removido da sala",
     "copyError": "Não consegui copiar — copie da barra de endereço",
     "copyLinkSuccess": "Link copiado",
-    "copyIdSuccess": "ID copiado"
+    "copyIdSuccess": "ID copiado",
+    "myHand": "Sua mão",
+    "thinking": "pensando",
+    "seatOptions": "Opções",
+    "react": "Reagir",
+    "remove": "Remover",
+    "kickConfirm": "Remover {name} da sala?",
+    "tableCenter": {
+      "revealed": "Resultado revelado",
+      "waiting": "Aguardando votos",
+      "reveal": "Revelar",
+      "showResult": "Ver resultado"
+    },
+    "results": {
+      "average": "Média",
+      "mode": "Moda",
+      "min": "Mín",
+      "max": "Máx",
+      "divergence": "Divergência",
+      "divergenceHint": "Vale uma conversa antes de fechar a estimativa.",
+      "distribution": "Distribuição",
+      "table": "Mesa"
+    },
+    "emoji": {
+      "panelAriaLabel": "Reagir com emoji",
+      "title": "Reagir",
+      "loading": "Carregando…",
+      "cooldown": "aguarde…"
+    }
   }
 }

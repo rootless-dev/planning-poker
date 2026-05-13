@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import PlayingCard from './PlayingCard.vue'
 import EmojiBubble from './EmojiBubble.vue'
 import LottiePlayer from './LottiePlayer.vue'
@@ -27,6 +28,7 @@ const emit = defineEmits<{
 }>()
 
 const showMenu = ref(false)
+const { t } = useI18n()
 
 function onTriggerClick() {
   if (props.isSelf || props.canKick) {
@@ -40,7 +42,7 @@ function chooseReact() {
 }
 
 function confirmKick() {
-  if (confirm(`Remover ${props.name} da sala?`)) emit('kick', props.uid)
+  if (confirm(t('room.kickConfirm', { name: props.name }))) emit('kick', props.uid)
   showMenu.value = false
 }
 
@@ -76,7 +78,7 @@ const lottieSize = computed(() => {
     <PlayingCard v-else state="revealed" :size="cardSize ?? 'sm'" :value="vote" />
 
     <div class="avatar numeral">
-      <span v-if="isThinking" class="thinking-emoji" aria-label="pensando">
+      <span v-if="isThinking" class="thinking-emoji" :aria-label="t('room.thinking')">
         <LottiePlayer v-if="thinkingLottie" :animation="thinkingLottie" :size="lottieSize" />
         <span v-else>🤔</span>
       </span>
@@ -99,11 +101,11 @@ const lottieSize = computed(() => {
       type="button"
       @click="onTriggerClick"
       class="kick-trigger"
-      aria-label="Opções"
+      :aria-label="t('room.seatOptions')"
     >⋯</button>
     <div v-if="showMenu" class="kick-menu">
-      <button v-if="isSelf" type="button" @click="chooseReact">Reagir</button>
-      <button v-else-if="canKick" type="button" @click="confirmKick">Remover</button>
+      <button v-if="isSelf" type="button" @click="chooseReact">{{ t('room.react') }}</button>
+      <button v-else-if="canKick" type="button" @click="confirmKick">{{ t('room.remove') }}</button>
     </div>
   </div>
 </template>

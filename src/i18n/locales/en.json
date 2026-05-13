@@ -113,6 +113,34 @@
     "kicked": "You were removed from the room",
     "copyError": "Couldn't copy — copy from the address bar",
     "copyLinkSuccess": "Link copied",
-    "copyIdSuccess": "ID copied"
+    "copyIdSuccess": "ID copied",
+    "myHand": "Your hand",
+    "thinking": "thinking",
+    "seatOptions": "Options",
+    "react": "React",
+    "remove": "Remove",
+    "kickConfirm": "Remove {name} from the room?",
+    "tableCenter": {
+      "revealed": "Result revealed",
+      "waiting": "Waiting for votes",
+      "reveal": "Reveal",
+      "showResult": "Show result"
+    },
+    "results": {
+      "average": "Average",
+      "mode": "Mode",
+      "min": "Min",
+      "max": "Max",
+      "divergence": "Divergence",
+      "divergenceHint": "Worth a chat before locking the estimate.",
+      "distribution": "Distribution",
+      "table": "Table"
+    },
+    "emoji": {
+      "panelAriaLabel": "React with emoji",
+      "title": "React",
+      "loading": "Loading…",
+      "cooldown": "wait…"
+    }
   }
 }
