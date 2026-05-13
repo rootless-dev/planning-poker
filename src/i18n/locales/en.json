@@ -13,5 +13,25 @@
     "close": "Close",
     "cancel": "Cancel",
     "confirm": "Confirm"
+  },
+  "home": {
+    "heroTitle": "Team estimates,",
+    "heroTitleBreak": "without friction.",
+    "heroSubtitle": "Spin up a room in seconds, share the link and vote together. No sign-up.",
+    "createRoom": "Create room",
+    "joinByLink": "Join with link",
+    "join": {
+      "modalTitle": "Join a room",
+      "idLabel": "Room ID",
+      "idPlaceholder": "e.g. a1b2c3d4-e5f6-7890-abcd-ef0123456789",
+      "errorEmpty": "Enter the room ID",
+      "errorLink": "Paste just the room ID, not the full link",
+      "errorInvalid": "Invalid ID — check and try again",
+      "submit": "Enter"
+    },
+    "footer": {
+      "builtWith": "Built with Vue + Firebase.",
+      "codeOnGitHub": "Code on GitHub"
+    }
   }
 }

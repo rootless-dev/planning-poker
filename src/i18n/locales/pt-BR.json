@@ -13,5 +13,25 @@
     "close": "Fechar",
     "cancel": "Cancelar",
     "confirm": "Confirmar"
+  },
+  "home": {
+    "heroTitle": "Estimativas em time,",
+    "heroTitleBreak": "sem fricção.",
+    "heroSubtitle": "Crie uma sala em segundos, mande o link e vote junto. Sem cadastro.",
+    "createRoom": "Criar sala",
+    "joinByLink": "Entrar com link",
+    "join": {
+      "modalTitle": "Entrar em uma sala",
+      "idLabel": "ID da sala",
+      "idPlaceholder": "ex.: a1b2c3d4-e5f6-7890-abcd-ef0123456789",
+      "errorEmpty": "Informe o ID da sala",
+      "errorLink": "Cole apenas o ID da sala, não o link completo",
+      "errorInvalid": "ID inválido — verifique e tente de novo",
+      "submit": "Entrar"
+    },
+    "footer": {
+      "builtWith": "Construído com Vue + Firebase.",
+      "codeOnGitHub": "Código no GitHub"
+    }
   }
 }
