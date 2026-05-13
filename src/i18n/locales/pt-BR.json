@@ -8,5 +8,10 @@
     "toggleTheme": "Alternar tema",
     "themeLight": "Daybreak",
     "themeDark": "Lounge"
+  },
+  "common": {
+    "close": "Fechar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar"
   }
 }
