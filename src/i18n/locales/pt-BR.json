@@ -55,5 +55,27 @@
       "needTwoValues": "Deck custom precisa de ao menos 2 valores únicos",
       "unknownType": "Tipo de deck desconhecido: {type}"
     }
+  },
+  "create": {
+    "title": "Criar sala",
+    "nameLabel": "Nome da sala",
+    "namePlaceholder": "Sprint 42 — backend",
+    "moderatorLabel": "Seu nome",
+    "moderatorPlaceholder": "Como você quer ser visto",
+    "submit": "Criar sala",
+    "submitting": "Criando…",
+    "cancel": "Cancelar",
+    "howItWorks": {
+      "ariaLabel": "Como funciona o Planning Poker",
+      "slideAriaLabel": "{index} de {total}",
+      "goToStep": "Ir para passo {index}",
+      "step": "PASSO {index} DE {total}",
+      "scenes": {
+        "s1": { "title": "Crie uma sala em segundos", "description": "Sem cadastro. Escolha o baralho e pronto." },
+        "s2": { "title": "Compartilhe o link com o time", "description": "Cola no chat — quem entrar entra na hora." },
+        "s3": { "title": "Vote em segredo", "description": "Ninguém vê os votos até o moderador revelar." },
+        "s4": { "title": "Revele e veja as estatísticas", "description": "Média, moda, distribuição na hora." }
+      }
+    }
   }
 }

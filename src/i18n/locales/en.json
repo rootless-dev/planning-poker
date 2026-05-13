@@ -55,5 +55,27 @@
       "needTwoValues": "Custom deck needs at least 2 unique values",
       "unknownType": "Unknown deck type: {type}"
     }
+  },
+  "create": {
+    "title": "Create room",
+    "nameLabel": "Room name",
+    "namePlaceholder": "Sprint 42 — backend",
+    "moderatorLabel": "Your name",
+    "moderatorPlaceholder": "How you want to be seen",
+    "submit": "Create room",
+    "submitting": "Creating…",
+    "cancel": "Cancel",
+    "howItWorks": {
+      "ariaLabel": "How Planning Poker works",
+      "slideAriaLabel": "{index} of {total}",
+      "goToStep": "Go to step {index}",
+      "step": "STEP {index} OF {total}",
+      "scenes": {
+        "s1": { "title": "Spin up a room in seconds", "description": "No sign-up. Pick a deck and you're done." },
+        "s2": { "title": "Share the link with your team", "description": "Paste it in chat — whoever joins joins instantly." },
+        "s3": { "title": "Vote in secret", "description": "No one sees the votes until the moderator reveals." },
+        "s4": { "title": "Reveal and see the stats", "description": "Average, mode, distribution on the spot." }
+      }
+    }
   }
 }

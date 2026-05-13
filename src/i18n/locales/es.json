@@ -55,5 +55,27 @@
       "needTwoValues": "La baraja personalizada necesita al menos 2 valores únicos",
       "unknownType": "Tipo de baraja desconocido: {type}"
     }
+  },
+  "create": {
+    "title": "Crear sala",
+    "nameLabel": "Nombre de la sala",
+    "namePlaceholder": "Sprint 42 — backend",
+    "moderatorLabel": "Tu nombre",
+    "moderatorPlaceholder": "Cómo quieres que te vean",
+    "submit": "Crear sala",
+    "submitting": "Creando…",
+    "cancel": "Cancelar",
+    "howItWorks": {
+      "ariaLabel": "Cómo funciona el Planning Poker",
+      "slideAriaLabel": "{index} de {total}",
+      "goToStep": "Ir al paso {index}",
+      "step": "PASO {index} DE {total}",
+      "scenes": {
+        "s1": { "title": "Crea una sala en segundos", "description": "Sin registro. Elige la baraja y listo." },
+        "s2": { "title": "Comparte el enlace con el equipo", "description": "Pégalo en el chat — quien entre entra al instante." },
+        "s3": { "title": "Vota en secreto", "description": "Nadie ve los votos hasta que el moderador revela." },
+        "s4": { "title": "Revela y ve las estadísticas", "description": "Media, moda, distribución al momento." }
+      }
+    }
   }
 }
