@@ -30,12 +30,13 @@ onBeforeUnmount(() => window.removeEventListener('click', onDocClick))
 </script>
 
 <template>
-  <div ref="rootRef" class="locale-switcher">
+  <div ref="rootRef" class="locale-switcher" @keydown.esc="close">
     <button
       type="button"
       class="locale-trigger"
-      :aria-haspopup="'listbox'"
+      aria-haspopup="listbox"
       :aria-expanded="open"
+      :aria-controls="open ? 'locale-menu' : undefined"
       @click.stop="toggle"
     >
       <span class="locale-code">{{ currentShort }}</span>
@@ -43,6 +44,7 @@ onBeforeUnmount(() => window.removeEventListener('click', onDocClick))
     </button>
     <ul
       v-if="open"
+      id="locale-menu"
       class="locale-menu"
       role="listbox"
       tabindex="-1"
