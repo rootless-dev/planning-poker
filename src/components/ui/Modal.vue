@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, useSlots } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = withDefaults(
   defineProps<{
@@ -13,6 +14,7 @@ const props = withDefaults(
 )
 const emit = defineEmits<{ close: [] }>()
 const slots = useSlots()
+const { t } = useI18n()
 
 function onKey(e: KeyboardEvent) {
   if (e.key === 'Escape' && props.open && props.closable !== false) emit('close')
@@ -43,7 +45,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           type="button"
           class="modal-close"
           @click="emit('close')"
-          aria-label="Fechar"
+          :aria-label="t('common.close')"
         >×</button>
         <div class="modal-body">
           <div v-if="title || kicker" class="modal-head">

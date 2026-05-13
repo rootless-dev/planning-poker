@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onBeforeUnmount, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useRoom } from '@/composables/useRoom'
 import { useAuth } from '@/composables/useAuth'
 import { usePresence } from '@/composables/usePresence'
@@ -24,6 +25,7 @@ const router = useRouter()
 const room = useRoom()
 const { uid } = useAuth()
 const toasts = useToasts()
+const { t } = useI18n()
 
 room.watch(props.id, uid.value)
 watch(uid, (next, prev) => {
@@ -68,7 +70,7 @@ watch(
 const wasInRoom = ref(false)
 watch(() => room.inRoom.value, (now) => {
   if (wasInRoom.value && !now && !room.notFound.value) {
-    toasts.push('Você foi removido da sala', 'error')
+    toasts.push(t('room.kicked'), 'error')
     router.push({ name: 'home' })
   }
   wasInRoom.value = now
@@ -144,20 +146,20 @@ onBeforeUnmount(() => {
 <template>
   <main class="room-main">
     <div v-if="room.loading.value" class="room-state">
-      <span class="kicker">Carregando</span>
-      <p class="state-line">Distribuindo o baralho…</p>
+      <span class="kicker">{{ t('room.loading') }}</span>
+      <p class="state-line">{{ t('room.loadingHint') }}</p>
     </div>
 
     <div v-else-if="room.notFound.value" class="room-state">
-      <span class="kicker">Sala fechada</span>
-      <h1 class="state-title">Essa mesa não existe ou expirou</h1>
-      <p class="state-line">Volte para a entrada e abra uma nova rodada.</p>
-      <button class="state-link" @click="router.push({ name: 'home' })">Ir para a home →</button>
+      <span class="kicker">{{ t('room.notFoundKicker') }}</span>
+      <h1 class="state-title">{{ t('room.notFoundTitle') }}</h1>
+      <p class="state-line">{{ t('room.notFoundHint') }}</p>
+      <button class="state-link" @click="router.push({ name: 'home' })">{{ t('room.goHome') }}</button>
     </div>
 
     <div v-else-if="room.error.value" class="room-state">
-      <span class="kicker">Erro</span>
-      <h1 class="state-title">Algo deu errado</h1>
+      <span class="kicker">{{ t('room.errorKicker') }}</span>
+      <h1 class="state-title">{{ t('room.errorTitle') }}</h1>
       <p class="state-line">{{ room.error.value }}</p>
     </div>
 
@@ -212,8 +214,8 @@ onBeforeUnmount(() => {
     <Modal
       v-if="room.room.value"
       :open="showResults && room.room.value.round.revealed"
-      kicker="Veredicto"
-      title="A mesa fala"
+      :kicker="t('room.verdict')"
+      :title="t('room.verdictTitle')"
       size="lg"
       @close="showResults = false"
     >
@@ -222,8 +224,8 @@ onBeforeUnmount(() => {
         :seats="room.seats.value.map(s => ({ uid: s.uid, name: s.name, vote: s.vote }))"
       />
       <template #footer>
-        <GhostButton @click="showResults = false">Fechar</GhostButton>
-        <PrimaryButton v-if="room.isModerator.value" @click="onReset">Nova rodada</PrimaryButton>
+        <GhostButton @click="showResults = false">{{ t('room.closeResults') }}</GhostButton>
+        <PrimaryButton v-if="room.isModerator.value" @click="onReset">{{ t('room.newRound') }}</PrimaryButton>
       </template>
     </Modal>
 

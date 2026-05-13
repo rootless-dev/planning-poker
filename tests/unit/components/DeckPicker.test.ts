@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import DeckPicker from '@/components/create/DeckPicker.vue'
 import { DECK_PRESETS } from '@/lib/decks'
+import { i18n } from '@/i18n'
 
 describe('DeckPicker', () => {
   it('renderiza uma <option> para cada preset + Customizado', () => {
@@ -10,7 +11,7 @@ describe('DeckPicker', () => {
     })
     const options = w.findAll('select option')
     expect(options).toHaveLength(DECK_PRESETS.length + 1)
-    expect(options[options.length - 1].text()).toBe('Customizado')
+    expect(options[options.length - 1].text()).toBe(i18n.global.t('decks.custom'))
   })
 
   it('mostra DeckPreviewCards quando modelValue é preset', () => {
@@ -34,7 +35,7 @@ describe('DeckPicker', () => {
       props: { modelValue: 'risk', customRaw: '' },
     })
     const risk = DECK_PRESETS.find(p => p.type === 'risk')!
-    expect(w.text()).toContain(risk.description)
+    expect(w.text()).toContain(i18n.global.t(risk.descKey))
   })
 
   it('NÃO mostra description quando custom está selecionado', () => {

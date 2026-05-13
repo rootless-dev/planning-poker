@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import TextField from '@/components/ui/TextField.vue'
 import PrimaryButton from '@/components/ui/PrimaryButton.vue'
 import GhostButton from '@/components/ui/GhostButton.vue'
@@ -15,6 +16,7 @@ import type { DeckType } from '@/types/room'
 const router = useRouter()
 const { uid } = useAuth()
 const toasts = useToasts()
+const { t } = useI18n()
 
 const roomName = ref('')
 const moderatorName = ref(localStorage.getItem('pp:lastName') ?? '')
@@ -66,16 +68,16 @@ async function submit() {
       </aside>
 
       <section class="create-form">
-        <h1 class="form-title">Criar sala</h1>
+        <h1 class="form-title">{{ t('create.title') }}</h1>
 
-        <TextField v-model="roomName" label="Nome da sala" placeholder="Sprint 42 — backend" :maxlength="60" />
-        <TextField v-model="moderatorName" label="Seu nome" placeholder="Como você quer ser visto" :maxlength="30" />
+        <TextField v-model="roomName" :label="t('create.nameLabel')" :placeholder="t('create.namePlaceholder')" :maxlength="60" />
+        <TextField v-model="moderatorName" :label="t('create.moderatorLabel')" :placeholder="t('create.moderatorPlaceholder')" :maxlength="30" />
         <DeckPicker v-model="deckType" v-model:custom-raw="customRaw" />
 
         <div class="form-actions">
-          <GhostButton @click="router.push({ name: 'home' })">Cancelar</GhostButton>
+          <GhostButton @click="router.push({ name: 'home' })">{{ t('create.cancel') }}</GhostButton>
           <PrimaryButton :disabled="!canSubmit" @click="submit">
-            {{ submitting ? 'Criando…' : 'Criar sala' }}
+            {{ submitting ? t('create.submitting') : t('create.submit') }}
           </PrimaryButton>
         </div>
       </section>

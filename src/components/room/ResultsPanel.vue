@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { computeStats } from '@/lib/stats'
 
 interface SeatVote { uid: string; name: string; vote: string | null }
 const props = defineProps<{ seats: SeatVote[]; embedded?: boolean }>()
+const { t } = useI18n()
 
 const votes = computed(() => props.seats.map(s => s.vote).filter((v): v is string => v !== null))
 const stats = computed(() => computeStats(votes.value))
@@ -22,50 +24,50 @@ const totalVotes = computed(() => votes.value.length)
 <template>
   <section class="results paper-grain" :class="{ embedded }" aria-live="polite">
     <header v-if="!embedded" class="results-head">
-      <span class="kicker">Veredicto</span>
-      <h2 class="results-title">A mesa fala</h2>
+      <span class="kicker">{{ t('room.verdict') }}</span>
+      <h2 class="results-title">{{ t('room.verdictTitle') }}</h2>
       <div class="gold-rule"></div>
     </header>
 
     <div class="stats-grid">
       <div class="stat primary">
-        <span class="kicker">Média</span>
+        <span class="kicker">{{ t('room.results.average') }}</span>
         <span class="numeral big num-tabular">{{ stats.average ?? '—' }}</span>
       </div>
       <div class="stat">
-        <span class="kicker">Moda</span>
+        <span class="kicker">{{ t('room.results.mode') }}</span>
         <span class="numeral mid num-tabular">{{ stats.mode ?? '—' }}</span>
       </div>
       <div class="stat">
-        <span class="kicker">Mín</span>
+        <span class="kicker">{{ t('room.results.min') }}</span>
         <span class="numeral mid num-tabular">{{ stats.min ?? '—' }}</span>
       </div>
       <div class="stat">
-        <span class="kicker">Máx</span>
+        <span class="kicker">{{ t('room.results.max') }}</span>
         <span class="numeral mid num-tabular">{{ stats.max ?? '—' }}</span>
       </div>
     </div>
 
     <div v-if="stats.divergent" class="divergence">
-      <span class="badge">⚠ Divergência</span>
-      <span class="divergence-text">Vale uma conversa antes de fechar a estimativa.</span>
+      <span class="badge">⚠ {{ t('room.results.divergence') }}</span>
+      <span class="divergence-text">{{ t('room.results.divergenceHint') }}</span>
     </div>
 
     <div v-if="tally.length" class="tally-section">
-      <span class="kicker">Distribuição</span>
+      <span class="kicker">{{ t('room.results.distribution') }}</span>
       <ul class="tally-list">
-        <li v-for="t in tally" :key="t.value" class="tally-row">
-          <span class="numeral mid num-tabular value">{{ t.value }}</span>
+        <li v-for="row in tally" :key="row.value" class="tally-row">
+          <span class="numeral mid num-tabular value">{{ row.value }}</span>
           <span class="bar-track" aria-hidden="true">
-            <span class="bar-fill" :style="{ width: (t.count / totalVotes * 100) + '%' }"></span>
+            <span class="bar-fill" :style="{ width: (row.count / totalVotes * 100) + '%' }"></span>
           </span>
-          <span class="count num-tabular">×{{ t.count }}</span>
+          <span class="count num-tabular">×{{ row.count }}</span>
         </li>
       </ul>
     </div>
 
     <div class="voters">
-      <span class="kicker">Mesa</span>
+      <span class="kicker">{{ t('room.results.table') }}</span>
       <ul class="voters-list">
         <li v-for="s in seats" :key="s.uid" class="voter-row">
           <span class="voter-name">{{ s.name }}</span>

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { buildDeck, pickPreview, DECK_PRESETS } from '@/lib/decks'
+import { i18n } from '@/i18n'
 
 describe('DECK_PRESETS', () => {
   it('contém os 8 presets esperados', () => {
@@ -16,10 +17,10 @@ describe('DECK_PRESETS', () => {
     ])
   })
 
-  it('todo preset tem label, description e pelo menos 2 valores', () => {
+  it('todo preset tem labelKey, descKey e pelo menos 2 valores', () => {
     for (const p of DECK_PRESETS) {
-      expect(p.label.length).toBeGreaterThan(0)
-      expect(p.description.length).toBeGreaterThan(0)
+      expect(p.labelKey.length).toBeGreaterThan(0)
+      expect(p.descKey.length).toBeGreaterThan(0)
       expect(p.values.length).toBeGreaterThanOrEqual(2)
     }
   })
@@ -89,12 +90,12 @@ describe('buildDeck — custom', () => {
 
   it('rejeita custom vazio', () => {
     expect(() => buildDeck({ type: 'custom', customValues: ['', ' '] }))
-      .toThrow(/precisa de ao menos 2 valores/i)
+      .toThrow(i18n.global.t('decks.errors.needTwoValues'))
   })
 
   it('rejeita custom com 1 valor', () => {
     expect(() => buildDeck({ type: 'custom', customValues: ['7'] }))
-      .toThrow(/precisa de ao menos 2 valores/i)
+      .toThrow(i18n.global.t('decks.errors.needTwoValues'))
   })
 })
 

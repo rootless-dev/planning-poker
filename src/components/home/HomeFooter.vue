@@ -1,10 +1,15 @@
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
+</script>
+
 <template>
   <footer class="text-center py-6 text-xs" style="color: var(--color-muted);">
-    Construído com Vue + Firebase. <a
+    {{ t('home.footer.builtWith') }} <a
       href="https://github.com/rootless-dev/planning-poker"
       target="_blank"
       rel="noopener noreferrer"
       class="underline"
-    >Código no GitHub</a>.
+    >{{ t('home.footer.codeOnGitHub') }}</a>.
   </footer>
 </template>

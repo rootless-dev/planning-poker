@@ -1,33 +1,19 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 interface Scene {
-  kicker: string
-  title: string
-  description: string
+  titleKey: string
+  descKey: string
 }
 
+const { t } = useI18n()
+
 const SCENES: Scene[] = [
-  {
-    kicker: 'PASSO 1 DE 4',
-    title: 'Crie uma sala em segundos',
-    description: 'Sem cadastro. Escolha o baralho e pronto.',
-  },
-  {
-    kicker: 'PASSO 2 DE 4',
-    title: 'Compartilhe o link com o time',
-    description: 'Cola no chat — quem entrar entra na hora.',
-  },
-  {
-    kicker: 'PASSO 3 DE 4',
-    title: 'Vote em segredo',
-    description: 'Ninguém vê os votos até o moderador revelar.',
-  },
-  {
-    kicker: 'PASSO 4 DE 4',
-    title: 'Revele e veja as estatísticas',
-    description: 'Média, moda, distribuição na hora.',
-  },
+  { titleKey: 'create.howItWorks.scenes.s1.title', descKey: 'create.howItWorks.scenes.s1.description' },
+  { titleKey: 'create.howItWorks.scenes.s2.title', descKey: 'create.howItWorks.scenes.s2.description' },
+  { titleKey: 'create.howItWorks.scenes.s3.title', descKey: 'create.howItWorks.scenes.s3.description' },
+  { titleKey: 'create.howItWorks.scenes.s4.title', descKey: 'create.howItWorks.scenes.s4.description' },
 ]
 
 const INTERVAL_MS = 5000
@@ -81,6 +67,8 @@ onBeforeUnmount(() => {
   mediaQuery?.removeEventListener('change', onReducedMotionChange)
   clearTimer()
 })
+
+const liveText = computed(() => `${t(SCENES[activeIndex.value].titleKey)}. ${t(SCENES[activeIndex.value].descKey)}`)
 </script>
 
 <template>
@@ -88,7 +76,7 @@ onBeforeUnmount(() => {
     class="carousel"
     role="region"
     aria-roledescription="carousel"
-    aria-label="Como funciona o Planning Poker"
+    :aria-label="t('create.howItWorks.ariaLabel')"
     @pointerenter="onPointerEnter"
     @pointerleave="onPointerLeave"
     @focusin="onFocusIn"
@@ -101,12 +89,12 @@ onBeforeUnmount(() => {
         class="scene"
         role="group"
         aria-roledescription="slide"
-        :aria-label="`${i + 1} de ${SCENES.length}`"
+        :aria-label="t('create.howItWorks.slideAriaLabel', { index: i + 1, total: SCENES.length })"
         :aria-hidden="i !== activeIndex ? 'true' : 'false'"
       >
-        <p class="kicker">{{ scene.kicker }}</p>
-        <h2 class="scene-title">{{ scene.title }}</h2>
-        <p class="scene-desc">{{ scene.description }}</p>
+        <p class="kicker">{{ t('create.howItWorks.step', { index: i + 1, total: SCENES.length }) }}</p>
+        <h2 class="scene-title">{{ t(scene.titleKey) }}</h2>
+        <p class="scene-desc">{{ t(scene.descKey) }}</p>
         <div class="scene-art" aria-hidden="true">
           <div class="card t1">{{ ['3', '5', '8', '13'][i] }}</div>
           <div class="card mid">{{ ['5', '8', '13', '20'][i] }}</div>
@@ -115,9 +103,7 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <div class="sr-only" aria-live="polite" aria-atomic="true">
-      {{ SCENES[activeIndex].title }}. {{ SCENES[activeIndex].description }}
-    </div>
+    <div class="sr-only" aria-live="polite" aria-atomic="true">{{ liveText }}</div>
 
     <div class="dots" role="tablist">
       <button
@@ -126,7 +112,7 @@ onBeforeUnmount(() => {
         type="button"
         class="dot"
         :class="{ active: i === activeIndex }"
-        :aria-label="`Ir para passo ${i + 1}`"
+        :aria-label="t('create.howItWorks.goToStep', { index: i + 1 })"
         :aria-current="i === activeIndex ? 'step' : undefined"
         @click="goTo(i)"
       />

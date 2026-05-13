@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import PrimaryButton from '@/components/ui/PrimaryButton.vue'
 import GhostButton from '@/components/ui/GhostButton.vue'
 import TextField from '@/components/ui/TextField.vue'
 import Modal from '@/components/ui/Modal.vue'
 
 const router = useRouter()
+const { t } = useI18n()
 const showJoin = ref(false)
 const sessionId = ref('')
 const joinError = ref('')
@@ -26,15 +28,15 @@ watch(showJoin, (open) => {
 function tryJoin() {
   const raw = sessionId.value.trim()
   if (!raw) {
-    joinError.value = 'Informe o ID da sala'
+    joinError.value = t('home.join.errorEmpty')
     return
   }
   if (raw.includes('/') || raw.startsWith('http')) {
-    joinError.value = 'Cole apenas o ID da sala, não o link completo'
+    joinError.value = t('home.join.errorLink')
     return
   }
   if (!UUID_RE.test(raw)) {
-    joinError.value = 'ID inválido — verifique e tente de novo'
+    joinError.value = t('home.join.errorInvalid')
     return
   }
   router.push({ name: 'room', params: { id: raw } })
@@ -51,29 +53,29 @@ function tryJoin() {
     </div>
 
     <h1 class="text-3xl sm:text-5xl font-extrabold mb-3" style="color: var(--color-ink);">
-      Estimativas em time,<br />sem fricção.
+      {{ t('home.heroTitle') }}<br />{{ t('home.heroTitleBreak') }}
     </h1>
     <p class="max-w-md mb-8 text-sm sm:text-base" style="color: var(--color-muted);">
-      Crie uma sala em segundos, mande o link e vote junto. Sem cadastro.
+      {{ t('home.heroSubtitle') }}
     </p>
 
     <div class="flex flex-wrap gap-3 justify-center">
-      <PrimaryButton @click="goCreate">Criar sala</PrimaryButton>
-      <GhostButton @click="showJoin = true">Entrar com link</GhostButton>
+      <PrimaryButton @click="goCreate">{{ t('home.createRoom') }}</PrimaryButton>
+      <GhostButton @click="showJoin = true">{{ t('home.joinByLink') }}</GhostButton>
     </div>
 
-    <Modal :open="showJoin" title="Entrar em uma sala" @close="showJoin = false">
+    <Modal :open="showJoin" :title="t('home.join.modalTitle')" @close="showJoin = false">
       <form @submit.prevent="tryJoin" class="flex flex-col gap-3">
         <TextField
           v-model="sessionId"
-          label="ID da sala"
-          placeholder="ex.: a1b2c3d4-e5f6-7890-abcd-ef0123456789"
+          :label="t('home.join.idLabel')"
+          :placeholder="t('home.join.idPlaceholder')"
           :maxlength="36"
         />
         <p v-if="joinError" class="form-error">{{ joinError }}</p>
         <div class="flex justify-end gap-2">
-          <GhostButton @click="showJoin = false">Cancelar</GhostButton>
-          <PrimaryButton type="submit">Entrar</PrimaryButton>
+          <GhostButton @click="showJoin = false">{{ t('common.cancel') }}</GhostButton>
+          <PrimaryButton type="submit">{{ t('home.join.submit') }}</PrimaryButton>
         </div>
       </form>
     </Modal>

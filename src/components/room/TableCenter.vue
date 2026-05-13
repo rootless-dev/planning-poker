@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
 defineProps<{
   isModerator: boolean
   revealed: boolean
@@ -8,6 +10,8 @@ defineProps<{
 }>()
 const emit = defineEmits<{ reveal: []; reset: []; showResults: [] }>()
 
+const { t } = useI18n()
+
 const dots = (count: number, total: number) =>
   Array.from({ length: total }, (_, i) => i < count)
 </script>
@@ -15,8 +19,8 @@ const dots = (count: number, total: number) =>
 <template>
   <div class="center-card">
     <p class="kicker label">
-      <template v-if="revealed">Resultado revelado</template>
-      <template v-else>Aguardando votos</template>
+      <template v-if="revealed">{{ t('room.tableCenter.revealed') }}</template>
+      <template v-else>{{ t('room.tableCenter.waiting') }}</template>
     </p>
 
     <div v-if="!revealed" class="tally">
@@ -43,7 +47,7 @@ const dots = (count: number, total: number) =>
       :disabled="votedCount === 0"
       :aria-disabled="votedCount === 0"
     >
-      <span class="house-btn-label">Revelar</span>
+      <span class="house-btn-label">{{ t('room.tableCenter.reveal') }}</span>
       <span class="house-btn-arrow" aria-hidden="true">⟶</span>
       <span class="house-btn-key" aria-hidden="true">R</span>
     </button>
@@ -55,7 +59,7 @@ const dots = (count: number, total: number) =>
         @click="emit('showResults')"
         class="house-btn"
       >
-        <span class="house-btn-label">Ver resultado</span>
+        <span class="house-btn-label">{{ t('room.tableCenter.showResult') }}</span>
         <span class="house-btn-arrow" aria-hidden="true">↑</span>
       </button>
       <button
@@ -64,7 +68,7 @@ const dots = (count: number, total: number) =>
         @click="emit('reset')"
         class="house-btn ghost"
       >
-        <span class="house-btn-label">Nova rodada</span>
+        <span class="house-btn-label">{{ t('room.newRound') }}</span>
         <span class="house-btn-arrow" aria-hidden="true">↻</span>
       </button>
     </div>

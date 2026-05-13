@@ -1,0 +1,146 @@
+{
+  "_meta": {
+    "name": "English",
+    "code": "en"
+  },
+  "header": {
+    "githubRepo": "GitHub repository",
+    "toggleTheme": "Toggle theme",
+    "themeLight": "Daybreak",
+    "themeDark": "Lounge"
+  },
+  "common": {
+    "close": "Close",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "home": {
+    "heroTitle": "Team estimates,",
+    "heroTitleBreak": "without friction.",
+    "heroSubtitle": "Spin up a room in seconds, share the link and vote together. No sign-up.",
+    "createRoom": "Create room",
+    "joinByLink": "Join with link",
+    "join": {
+      "modalTitle": "Join a room",
+      "idLabel": "Room ID",
+      "idPlaceholder": "e.g. a1b2c3d4-e5f6-7890-abcd-ef0123456789",
+      "errorEmpty": "Enter the room ID",
+      "errorLink": "Paste just the room ID, not the full link",
+      "errorInvalid": "Invalid ID — check and try again",
+      "submit": "Enter"
+    },
+    "footer": {
+      "builtWith": "Built with Vue + Firebase.",
+      "codeOnGitHub": "Code on GitHub"
+    }
+  },
+  "decks": {
+    "fibonacci": { "name": "Fibonacci", "description": "Agile classic. Small granularity at the low end." },
+    "fibonacci-modified": { "name": "Modified Fibonacci", "description": "Adds a half point and large values for epics." },
+    "tshirt": { "name": "T-shirt", "description": "Abstract sizes — no anchoring to hours." },
+    "powers-of-2": { "name": "Powers of 2", "description": "Exponential growth — great for technical complexity." },
+    "sequential": { "name": "Sequential 1–10", "description": "Linear scale — fine, uniform granularity." },
+    "hours": { "name": "Hours", "description": "Direct estimate in hours for small tasks." },
+    "risk": { "name": "Risk", "description": "Qualitative assessment for spikes and impact analysis." },
+    "yes-no": { "name": "Yes / No", "description": "Binary decision for go/no-go." },
+    "custom": "Custom",
+    "fieldLabel": "Deck",
+    "customEditor": {
+      "label": "Deck values",
+      "placeholder": "type and press Enter…",
+      "hint": "Enter to add · Backspace to remove · minimum 2 values",
+      "removeChip": "Remove {value}"
+    },
+    "errors": {
+      "needTwoValues": "Custom deck needs at least 2 unique values",
+      "unknownType": "Unknown deck type: {type}"
+    }
+  },
+  "create": {
+    "title": "Create room",
+    "nameLabel": "Room name",
+    "namePlaceholder": "Sprint 42 — backend",
+    "moderatorLabel": "Your name",
+    "moderatorPlaceholder": "How you want to be seen",
+    "submit": "Create room",
+    "submitting": "Creating…",
+    "cancel": "Cancel",
+    "howItWorks": {
+      "ariaLabel": "How Planning Poker works",
+      "slideAriaLabel": "{index} of {total}",
+      "goToStep": "Go to step {index}",
+      "step": "STEP {index} OF {total}",
+      "scenes": {
+        "s1": { "title": "Spin up a room in seconds", "description": "No sign-up. Pick a deck and you're done." },
+        "s2": { "title": "Share the link with your team", "description": "Paste it in chat — whoever joins joins instantly." },
+        "s3": { "title": "Vote in secret", "description": "No one sees the votes until the moderator reveals." },
+        "s4": { "title": "Reveal and see the stats", "description": "Average, mode, distribution on the spot." }
+      }
+    }
+  },
+  "room": {
+    "loading": "Loading",
+    "loadingHint": "Dealing the deck…",
+    "notFoundKicker": "Closed room",
+    "notFoundTitle": "This table doesn't exist or has expired",
+    "notFoundHint": "Head back home and open a new round.",
+    "goHome": "Go home →",
+    "errorKicker": "Error",
+    "errorTitle": "Something went wrong",
+    "verdict": "Verdict",
+    "verdictTitle": "The table speaks",
+    "closeResults": "Close",
+    "newRound": "New round",
+    "session": "Session",
+    "players": "no players | {n} player | {n} players",
+    "copyLink": "Copy link",
+    "share": "Share",
+    "shareTitle": "Invite to the table",
+    "fullLink": "Full link",
+    "sessionId": "Session ID",
+    "copy": "Copy",
+    "estimating": "Estimating",
+    "estimatingEmpty": "Set what we're estimating",
+    "statusRevealed": "Revealed",
+    "statusNoPlayers": "No players",
+    "statusVoting": "{voted} of {total} voted",
+    "join": {
+      "kicker": "Room",
+      "title": "What should we call you?",
+      "placeholder": "Your name",
+      "submit": "Enter"
+    },
+    "kicked": "You were removed from the room",
+    "copyError": "Couldn't copy — copy from the address bar",
+    "copyLinkSuccess": "Link copied",
+    "copyIdSuccess": "ID copied",
+    "myHand": "Your hand",
+    "thinking": "thinking",
+    "seatOptions": "Options",
+    "react": "React",
+    "remove": "Remove",
+    "kickConfirm": "Remove {name} from the room?",
+    "tableCenter": {
+      "revealed": "Result revealed",
+      "waiting": "Waiting for votes",
+      "reveal": "Reveal",
+      "showResult": "Show result"
+    },
+    "results": {
+      "average": "Average",
+      "mode": "Mode",
+      "min": "Min",
+      "max": "Max",
+      "divergence": "Divergence",
+      "divergenceHint": "Worth a chat before locking the estimate.",
+      "distribution": "Distribution",
+      "table": "Table"
+    },
+    "emoji": {
+      "panelAriaLabel": "React with emoji",
+      "title": "React",
+      "loading": "Loading…",
+      "cooldown": "wait…"
+    }
+  }
+}

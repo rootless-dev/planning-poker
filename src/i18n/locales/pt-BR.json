@@ -1,0 +1,146 @@
+{
+  "_meta": {
+    "name": "Português (Brasil)",
+    "code": "pt-BR"
+  },
+  "header": {
+    "githubRepo": "Repositório no GitHub",
+    "toggleTheme": "Alternar tema",
+    "themeLight": "Daybreak",
+    "themeDark": "Lounge"
+  },
+  "common": {
+    "close": "Fechar",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar"
+  },
+  "home": {
+    "heroTitle": "Estimativas em time,",
+    "heroTitleBreak": "sem fricção.",
+    "heroSubtitle": "Crie uma sala em segundos, mande o link e vote junto. Sem cadastro.",
+    "createRoom": "Criar sala",
+    "joinByLink": "Entrar com link",
+    "join": {
+      "modalTitle": "Entrar em uma sala",
+      "idLabel": "ID da sala",
+      "idPlaceholder": "ex.: a1b2c3d4-e5f6-7890-abcd-ef0123456789",
+      "errorEmpty": "Informe o ID da sala",
+      "errorLink": "Cole apenas o ID da sala, não o link completo",
+      "errorInvalid": "ID inválido — verifique e tente de novo",
+      "submit": "Entrar"
+    },
+    "footer": {
+      "builtWith": "Construído com Vue + Firebase.",
+      "codeOnGitHub": "Código no GitHub"
+    }
+  },
+  "decks": {
+    "fibonacci": { "name": "Fibonacci", "description": "Clássico ágil. Granularidade pequena no início." },
+    "fibonacci-modified": { "name": "Fibonacci modificado", "description": "Estende com meio ponto e valores altos para épicos." },
+    "tshirt": { "name": "T-shirt", "description": "Tamanhos abstratos, sem ancoragem em horas." },
+    "powers-of-2": { "name": "Potências de 2", "description": "Crescimento exponencial — bom para complexidade técnica." },
+    "sequential": { "name": "Sequencial 1–10", "description": "Escala linear — granularidade fina e uniforme." },
+    "hours": { "name": "Horas", "description": "Estimativa direta em horas para tarefas pequenas." },
+    "risk": { "name": "Risco", "description": "Avaliação qualitativa para spikes e análise de impacto." },
+    "yes-no": { "name": "Sim / Não", "description": "Decisão binária para go/no-go." },
+    "custom": "Customizado",
+    "fieldLabel": "Baralho",
+    "customEditor": {
+      "label": "Valores do baralho",
+      "placeholder": "digite e tecle Enter…",
+      "hint": "Enter adiciona · Backspace remove · mínimo 2 valores",
+      "removeChip": "Remover {value}"
+    },
+    "errors": {
+      "needTwoValues": "Deck custom precisa de ao menos 2 valores únicos",
+      "unknownType": "Tipo de deck desconhecido: {type}"
+    }
+  },
+  "create": {
+    "title": "Criar sala",
+    "nameLabel": "Nome da sala",
+    "namePlaceholder": "Sprint 42 — backend",
+    "moderatorLabel": "Seu nome",
+    "moderatorPlaceholder": "Como você quer ser visto",
+    "submit": "Criar sala",
+    "submitting": "Criando…",
+    "cancel": "Cancelar",
+    "howItWorks": {
+      "ariaLabel": "Como funciona o Planning Poker",
+      "slideAriaLabel": "{index} de {total}",
+      "goToStep": "Ir para passo {index}",
+      "step": "PASSO {index} DE {total}",
+      "scenes": {
+        "s1": { "title": "Crie uma sala em segundos", "description": "Sem cadastro. Escolha o baralho e pronto." },
+        "s2": { "title": "Compartilhe o link com o time", "description": "Cola no chat — quem entrar entra na hora." },
+        "s3": { "title": "Vote em segredo", "description": "Ninguém vê os votos até o moderador revelar." },
+        "s4": { "title": "Revele e veja as estatísticas", "description": "Média, moda, distribuição na hora." }
+      }
+    }
+  },
+  "room": {
+    "loading": "Carregando",
+    "loadingHint": "Distribuindo o baralho…",
+    "notFoundKicker": "Sala fechada",
+    "notFoundTitle": "Essa mesa não existe ou expirou",
+    "notFoundHint": "Volte para a entrada e abra uma nova rodada.",
+    "goHome": "Ir para a home →",
+    "errorKicker": "Erro",
+    "errorTitle": "Algo deu errado",
+    "verdict": "Veredicto",
+    "verdictTitle": "A mesa fala",
+    "closeResults": "Fechar",
+    "newRound": "Nova rodada",
+    "session": "Sessão",
+    "players": "nenhum jogador | {n} jogador | {n} jogadores",
+    "copyLink": "Copiar link",
+    "share": "Compartilhar",
+    "shareTitle": "Convide para a mesa",
+    "fullLink": "Link completo",
+    "sessionId": "ID da sessão",
+    "copy": "Copiar",
+    "estimating": "Estimando",
+    "estimatingEmpty": "Defina o que estamos estimando",
+    "statusRevealed": "Revelado",
+    "statusNoPlayers": "Sem jogadores",
+    "statusVoting": "{voted} de {total} votaram",
+    "join": {
+      "kicker": "Sala",
+      "title": "Como devemos te chamar?",
+      "placeholder": "Seu nome",
+      "submit": "Entrar"
+    },
+    "kicked": "Você foi removido da sala",
+    "copyError": "Não consegui copiar — copie da barra de endereço",
+    "copyLinkSuccess": "Link copiado",
+    "copyIdSuccess": "ID copiado",
+    "myHand": "Sua mão",
+    "thinking": "pensando",
+    "seatOptions": "Opções",
+    "react": "Reagir",
+    "remove": "Remover",
+    "kickConfirm": "Remover {name} da sala?",
+    "tableCenter": {
+      "revealed": "Resultado revelado",
+      "waiting": "Aguardando votos",
+      "reveal": "Revelar",
+      "showResult": "Ver resultado"
+    },
+    "results": {
+      "average": "Média",
+      "mode": "Moda",
+      "min": "Mín",
+      "max": "Máx",
+      "divergence": "Divergência",
+      "divergenceHint": "Vale uma conversa antes de fechar a estimativa.",
+      "distribution": "Distribuição",
+      "table": "Mesa"
+    },
+    "emoji": {
+      "panelAriaLabel": "Reagir com emoji",
+      "title": "Reagir",
+      "loading": "Carregando…",
+      "cooldown": "aguarde…"
+    }
+  }
+}

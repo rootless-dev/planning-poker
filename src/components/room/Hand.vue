@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import PlayingCard from './PlayingCard.vue'
 
 defineProps<{ values: string[]; selected: string | null; disabled?: boolean }>()
@@ -8,6 +9,8 @@ const emit = defineEmits<{
   'area-move': []
   'area-leave': []
 }>()
+
+const { t } = useI18n()
 
 function onPointerEnter() { emit('area-enter') }
 function onPointerLeave() { emit('area-leave') }
@@ -24,7 +27,7 @@ function onFocusOut(e: FocusEvent) {
 
 <template>
   <div class="hand-wrap">
-    <p class="kicker hand-label">Sua mão</p>
+    <p class="kicker hand-label">{{ t('room.myHand') }}</p>
     <div
       class="hand-rail"
       @pointerenter="onPointerEnter"

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { DeckType } from '@/types/room'
 import { DECK_PRESETS, pickPreview } from '@/lib/decks'
 import DeckPreviewCards from './DeckPreviewCards.vue'
@@ -13,6 +14,8 @@ const emit = defineEmits<{
   'update:modelValue': [value: DeckType]
   'update:customRaw': [value: string]
 }>()
+
+const { t } = useI18n()
 
 const activePreset = computed(() =>
   DECK_PRESETS.find(p => p.type === props.modelValue) ?? null
@@ -37,18 +40,18 @@ function onSelectChange(e: Event) {
 
 <template>
   <div class="deck-picker">
-    <label for="deck-type" class="field-label kicker">Baralho</label>
+    <label for="deck-type" class="field-label kicker">{{ t('decks.fieldLabel') }}</label>
     <select
       id="deck-type"
       class="deck-select focus-gold"
       :value="modelValue"
       @change="onSelectChange"
     >
-      <option v-for="p in DECK_PRESETS" :key="p.type" :value="p.type">{{ p.label }}</option>
-      <option value="custom">Customizado</option>
+      <option v-for="p in DECK_PRESETS" :key="p.type" :value="p.type">{{ t(p.labelKey) }}</option>
+      <option value="custom">{{ t('decks.custom') }}</option>
     </select>
 
-    <p v-if="activePreset" class="deck-description">{{ activePreset.description }}</p>
+    <p v-if="activePreset" class="deck-description">{{ t(activePreset.descKey) }}</p>
 
     <DeckPreviewCards v-if="modelValue !== 'custom'" :values="previewValues" />
     <CustomDeckEditor
