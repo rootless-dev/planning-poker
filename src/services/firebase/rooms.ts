@@ -69,13 +69,17 @@ export type Unsubscribe = () => void
 
 export function subscribeToRoom(
   roomId: string,
-  onChange: (room: Room | null) => void,
+  onChange: (room: Room | null, hasPendingWrites: boolean) => void,
   onError?: (err: Error) => void,
 ): Unsubscribe {
   const { db } = getFirebase()
   return onSnapshot(
     doc(db, 'rooms', roomId),
-    (snap) => onChange(snap.exists() ? (snap.data() as Room) : null),
+    { includeMetadataChanges: true },
+    (snap) => onChange(
+      snap.exists() ? (snap.data() as Room) : null,
+      snap.metadata.hasPendingWrites,
+    ),
     (err) => onError?.(err),
   )
 }
