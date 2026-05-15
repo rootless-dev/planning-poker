@@ -10,6 +10,7 @@ import {
 
 export const useRoomStore = defineStore('room', () => {
   const room = ref<Room | null>(null)
+  const roomHasPendingWrites = ref(false)
   const loading = ref(true)
   const notFound = ref(false)
   const error = ref<string | null>(null)
@@ -23,11 +24,18 @@ export const useRoomStore = defineStore('room', () => {
   let watchedUid: string | null = null
 
   // Liga/desliga a subscrição da coleção `votes` conforme `round.revealed` muda.
-  // Antes do reveal as rules bloqueariam essa query; só lemos próprio voto.
+  // O gate `!hasPendingWrites` na subscrição evita race do moderador: ao clicar em revelar,
+  // o SDK dispara snapshot local otimista (revealed=true) antes de o write commitar; as
+  // rules avaliam contra o estado servidor e rejeitariam a query até o ack. Já o desligamento
+  // só responde a `revealed=false` para não flickerar quando o próprio cliente faz outros
+  // writes pós-reveal (heartbeat, emoji, thinking) — que também elevam `hasPendingWrites`.
   vueWatch(
-    () => room.value?.round.revealed ?? false,
-    (revealed) => {
-      if (revealed && watchedRoomId && !unsubAllVotes) {
+    [
+      () => room.value?.round.revealed ?? false,
+      () => roomHasPendingWrites.value,
+    ],
+    ([revealed, pending]) => {
+      if (revealed && !pending && watchedRoomId && !unsubAllVotes) {
         unsubAllVotes = subscribeToAllVotes(watchedRoomId, (vs) => { allVotes.value = vs })
       } else if (!revealed && unsubAllVotes) {
         unsubAllVotes()
@@ -46,8 +54,9 @@ export const useRoomStore = defineStore('room', () => {
     error.value = null
     unsubRoom = subscribeToRoom(
       roomId,
-      (r) => {
+      (r, hasPendingWrites) => {
         loading.value = false
+        roomHasPendingWrites.value = hasPendingWrites
         if (r === null) {
           notFound.value = true
           room.value = null
@@ -74,6 +83,7 @@ export const useRoomStore = defineStore('room', () => {
     unsubOwnVote = null
     unsubAllVotes = null
     room.value = null
+    roomHasPendingWrites.value = false
     myVote.value = null
     allVotes.value = {}
     watchedRoomId = null
