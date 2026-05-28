@@ -10,6 +10,7 @@ import HowItWorksCarousel from '@/components/create/HowItWorksCarousel.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useToasts } from '@/composables/useToasts'
 import { buildDeck } from '@/lib/decks'
+import { loadLastCustomDeck, saveLastCustomDeck } from '@/lib/customDeckStorage'
 import { createRoom } from '@/services/firebase/rooms'
 import type { DeckType } from '@/types/room'
 
@@ -21,7 +22,7 @@ const { t } = useI18n()
 const roomName = ref('')
 const moderatorName = ref(localStorage.getItem('pp:lastName') ?? '')
 const deckType = ref<DeckType>('fibonacci')
-const customRaw = ref('')
+const customRaw = ref(loadLastCustomDeck())
 const submitting = ref(false)
 
 const customChipsCount = computed(() =>
@@ -44,6 +45,9 @@ async function submit() {
       type: deckType.value,
       customValues: deckType.value === 'custom' ? customRaw.value.split(',') : undefined,
     })
+    if (deck.type === 'custom') {
+      saveLastCustomDeck(deck.values)
+    }
     const id = await createRoom({
       name: roomName.value,
       deck,
