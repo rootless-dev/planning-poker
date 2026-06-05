@@ -71,6 +71,7 @@ function onSelectChange(e: Event) {
     <CustomDeckEditor
       v-else
       ref="editorRef"
+      :key="modelValue"
       :model-value="editorModel"
       :hours-mode="isHours"
       @update:model-value="onEditorUpdate"
