@@ -2,13 +2,22 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { computeStats } from '@/lib/stats'
+import { formatMinutes } from '@/lib/duration'
 
 interface SeatVote { uid: string; name: string; vote: string | null }
-const props = defineProps<{ seats: SeatVote[]; embedded?: boolean }>()
+const props = defineProps<{ seats: SeatVote[]; embedded?: boolean; unit?: 'hours' }>()
 const { t } = useI18n()
 
 const votes = computed(() => props.seats.map(s => s.vote).filter((v): v is string => v !== null))
-const stats = computed(() => computeStats(votes.value))
+const stats = computed(() => computeStats(votes.value, props.unit))
+
+function fmtStat(value: number | null): string {
+  if (value === null) return '—'
+  return props.unit === 'hours' ? formatMinutes(Math.round(value)) : String(value)
+}
+const displayAverage = computed(() => fmtStat(stats.value.average))
+const displayMin = computed(() => fmtStat(stats.value.min))
+const displayMax = computed(() => fmtStat(stats.value.max))
 
 const tally = computed(() => {
   const map = new Map<string, number>()
@@ -32,7 +41,7 @@ const totalVotes = computed(() => votes.value.length)
     <div class="stats-grid">
       <div class="stat primary">
         <span class="kicker">{{ t('room.results.average') }}</span>
-        <span class="numeral big num-tabular">{{ stats.average ?? '—' }}</span>
+        <span class="numeral big num-tabular">{{ displayAverage }}</span>
       </div>
       <div class="stat">
         <span class="kicker">{{ t('room.results.mode') }}</span>
@@ -40,11 +49,11 @@ const totalVotes = computed(() => votes.value.length)
       </div>
       <div class="stat">
         <span class="kicker">{{ t('room.results.min') }}</span>
-        <span class="numeral mid num-tabular">{{ stats.min ?? '—' }}</span>
+        <span class="numeral mid num-tabular">{{ displayMin }}</span>
       </div>
       <div class="stat">
         <span class="kicker">{{ t('room.results.max') }}</span>
-        <span class="numeral mid num-tabular">{{ stats.max ?? '—' }}</span>
+        <span class="numeral mid num-tabular">{{ displayMax }}</span>
       </div>
     </div>
 
