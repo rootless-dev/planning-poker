@@ -32,13 +32,14 @@ const customRaw = ref(loadLastCustomDeck())
 const hoursRaw = ref(loadLastHoursDeck())
 const submitting = ref(false)
 
+const isEditable = computed(() => deckType.value === 'custom' || deckType.value === 'hours')
 const activeRaw = computed(() => (deckType.value === 'hours' ? hoursRaw.value : customRaw.value))
 const activeTokens = computed(() =>
   activeRaw.value.split(',').map(s => s.trim()).filter(Boolean)
 )
 
 const editableValid = computed(() => {
-  if (deckType.value !== 'custom' && deckType.value !== 'hours') return true
+  if (!isEditable.value) return true
   if (deckType.value === 'hours') {
     if (activeTokens.value.some(t => !isValidMinutes(t))) return false
     const labels = new Set(activeTokens.value.map(t => formatMinutes(Number(t))))
@@ -59,10 +60,9 @@ async function submit() {
   if (!canSubmit.value || !uid.value) return
   submitting.value = true
   try {
-    const isEditable = deckType.value === 'custom' || deckType.value === 'hours'
     const deck = buildDeck({
       type: deckType.value,
-      customValues: isEditable ? activeRaw.value.split(',') : undefined,
+      customValues: isEditable.value ? activeTokens.value : undefined,
     })
     if (deck.type === 'custom') {
       saveLastCustomDeck(deck.values)
