@@ -40,7 +40,7 @@
     "tshirt": { "name": "T-shirt", "description": "Tamaños abstractos — sin anclaje en horas." },
     "powers-of-2": { "name": "Potencias de 2", "description": "Crecimiento exponencial — bueno para complejidad técnica." },
     "sequential": { "name": "Secuencial 1–10", "description": "Escala lineal — granularidad fina y uniforme." },
-    "hours": { "name": "Horas", "description": "Estimación directa en horas para tareas pequeñas." },
+    "hours": { "name": "Horas", "description": "Escribe minutos en el editor; convertidos a horas (60 se vuelve 1:00)." },
     "risk": { "name": "Riesgo", "description": "Evaluación cualitativa para spikes y análisis de impacto." },
     "yes-no": { "name": "Sí / No", "description": "Decisión binaria para go/no-go." },
     "custom": "Personalizado",
@@ -49,11 +49,14 @@
       "label": "Valores de la baraja",
       "placeholder": "escribe y pulsa Enter…",
       "hint": "Enter agrega · Backspace quita · mínimo 2 valores",
-      "removeChip": "Quitar {value}"
+      "removeChip": "Quitar {value}",
+      "hoursHint": "escribe minutos · 60 se vuelve 1:00 · mínimo 2 valores",
+      "invalidValues": "Valores no válidos. Usa solo números (minutos)."
     },
     "errors": {
       "needTwoValues": "La baraja personalizada necesita al menos 2 valores únicos",
-      "unknownType": "Tipo de baraja desconocido: {type}"
+      "unknownType": "Tipo de baraja desconocido: {type}",
+      "invalidHoursValues": "La baraja de horas solo acepta números (minutos)"
     }
   },
   "create": {
