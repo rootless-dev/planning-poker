@@ -1,8 +1,9 @@
 import type { Deck, DeckType } from '@/types/room'
 import { i18n } from '@/i18n'
+import { formatMinutes, isValidMinutes } from './duration'
 
 export interface DeckPreset {
-  type: Exclude<DeckType, 'custom'>
+  type: Exclude<DeckType, 'custom' | 'hours'>
   labelKey: string
   descKey: string
   values: readonly string[]
@@ -40,12 +41,6 @@ export const DECK_PRESETS: readonly DeckPreset[] = [
     values: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '?', '☕'],
   },
   {
-    type: 'hours',
-    labelKey: 'decks.hours.name',
-    descKey: 'decks.hours.description',
-    values: ['½h', '1h', '2h', '4h', '8h', '16h', '?', '☕'],
-  },
-  {
     type: 'risk',
     labelKey: 'decks.risk.name',
     descKey: 'decks.risk.description',
@@ -76,6 +71,21 @@ export function buildDeck(opts: BuildOptions): Deck {
       throw new Error(i18n.global.t('decks.errors.needTwoValues'))
     }
     return { type: 'custom', values: unique }
+  }
+
+  if (opts.type === 'hours') {
+    const tokens = (opts.customValues ?? [])
+      .map(v => v.trim())
+      .filter(v => v.length > 0)
+    if (tokens.some(t => !isValidMinutes(t))) {
+      throw new Error(i18n.global.t('decks.errors.invalidHoursValues'))
+    }
+    const labels = tokens.map(t => formatMinutes(Number(t)))
+    const unique = Array.from(new Set(labels))
+    if (unique.length < 2) {
+      throw new Error(i18n.global.t('decks.errors.needTwoValues'))
+    }
+    return { type: 'hours', values: unique }
   }
 
   const preset = DECK_PRESETS.find(p => p.type === opts.type)
