@@ -40,7 +40,7 @@
     "tshirt": { "name": "T-shirt", "description": "Abstract sizes — no anchoring to hours." },
     "powers-of-2": { "name": "Powers of 2", "description": "Exponential growth — great for technical complexity." },
     "sequential": { "name": "Sequential 1–10", "description": "Linear scale — fine, uniform granularity." },
-    "hours": { "name": "Hours", "description": "Direct estimate in hours for small tasks." },
+    "hours": { "name": "Hours", "description": "Type minutes in the editor; converted to hours (60 becomes 1:00)." },
     "risk": { "name": "Risk", "description": "Qualitative assessment for spikes and impact analysis." },
     "yes-no": { "name": "Yes / No", "description": "Binary decision for go/no-go." },
     "custom": "Custom",
@@ -49,11 +49,14 @@
       "label": "Deck values",
       "placeholder": "type and press Enter…",
       "hint": "Enter to add · Backspace to remove · minimum 2 values",
-      "removeChip": "Remove {value}"
+      "removeChip": "Remove {value}",
+      "hoursHint": "type minutes · 60 becomes 1:00 · minimum 2 values",
+      "invalidValues": "Invalid values. Use numbers only (minutes)."
     },
     "errors": {
       "needTwoValues": "Custom deck needs at least 2 unique values",
-      "unknownType": "Unknown deck type: {type}"
+      "unknownType": "Unknown deck type: {type}",
+      "invalidHoursValues": "Hours deck accepts numbers only (minutes)"
     }
   },
   "create": {

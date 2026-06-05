@@ -90,4 +90,24 @@ describe('CustomDeckEditor', () => {
     const last = events.length > 0 ? events[events.length - 1][0] : initial
     expect(last.split(',').length).toBeLessThanOrEqual(30)
   })
+
+  it('hoursMode: chip válido exibe o rótulo convertido', () => {
+    const w = mount(CustomDeckEditor, { props: { modelValue: '15, 60, 90', hoursMode: true } })
+    const chips = w.findAll('.chip')
+    expect(chips.map(c => c.text().replace('×', '').trim())).toEqual(['15m', '1:00', '1:30'])
+  })
+
+  it('hoursMode: chip inválido recebe classe vermelha e mostra mensagem de erro', () => {
+    const w = mount(CustomDeckEditor, { props: { modelValue: '15, 15m, abc', hoursMode: true } })
+    expect(w.findAll('.chip.invalid')).toHaveLength(2)
+    expect(w.find('.chip-error').exists()).toBe(true)
+  })
+
+  it('sem hoursMode não converte nem marca inválido', () => {
+    const w = mount(CustomDeckEditor, { props: { modelValue: '15, 15m', hoursMode: false } })
+    expect(w.findAll('.chip.invalid')).toHaveLength(0)
+    expect(w.find('.chip-error').exists()).toBe(false)
+    const chips = w.findAll('.chip')
+    expect(chips.map(c => c.text().replace('×', '').trim())).toEqual(['15', '15m'])
+  })
 })

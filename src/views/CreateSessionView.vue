@@ -10,7 +10,13 @@ import HowItWorksCarousel from '@/components/create/HowItWorksCarousel.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useToasts } from '@/composables/useToasts'
 import { buildDeck } from '@/lib/decks'
-import { loadLastCustomDeck, saveLastCustomDeck } from '@/lib/customDeckStorage'
+import {
+  loadLastCustomDeck,
+  saveLastCustomDeck,
+  loadLastHoursDeck,
+  saveLastHoursDeck,
+} from '@/lib/customDeckStorage'
+import { formatMinutes, isValidMinutes } from '@/lib/duration'
 import { createRoom } from '@/services/firebase/rooms'
 import type { DeckType } from '@/types/room'
 
@@ -23,16 +29,29 @@ const roomName = ref('')
 const moderatorName = ref(localStorage.getItem('pp:lastName') ?? '')
 const deckType = ref<DeckType>('fibonacci')
 const customRaw = ref(loadLastCustomDeck())
+const hoursRaw = ref(loadLastHoursDeck())
 const submitting = ref(false)
 
-const customChipsCount = computed(() =>
-  customRaw.value.split(',').map(s => s.trim()).filter(Boolean).length
+const isEditable = computed(() => deckType.value === 'custom' || deckType.value === 'hours')
+const activeRaw = computed(() => (deckType.value === 'hours' ? hoursRaw.value : customRaw.value))
+const activeTokens = computed(() =>
+  activeRaw.value.split(',').map(s => s.trim()).filter(Boolean)
 )
+
+const editableValid = computed(() => {
+  if (!isEditable.value) return true
+  if (deckType.value === 'hours') {
+    if (activeTokens.value.some(t => !isValidMinutes(t))) return false
+    const labels = new Set(activeTokens.value.map(t => formatMinutes(Number(t))))
+    return labels.size >= 2
+  }
+  return new Set(activeTokens.value).size >= 2
+})
 
 const canSubmit = computed(() =>
   roomName.value.trim().length > 0
   && moderatorName.value.trim().length > 0
-  && (deckType.value !== 'custom' || customChipsCount.value >= 2)
+  && editableValid.value
   && uid.value !== null
   && !submitting.value,
 )
@@ -43,10 +62,12 @@ async function submit() {
   try {
     const deck = buildDeck({
       type: deckType.value,
-      customValues: deckType.value === 'custom' ? customRaw.value.split(',') : undefined,
+      customValues: isEditable.value ? activeTokens.value : undefined,
     })
     if (deck.type === 'custom') {
       saveLastCustomDeck(deck.values)
+    } else if (deck.type === 'hours') {
+      saveLastHoursDeck(activeTokens.value)
     }
     const id = await createRoom({
       name: roomName.value,
@@ -76,7 +97,7 @@ async function submit() {
 
         <TextField v-model="roomName" :label="t('create.nameLabel')" :placeholder="t('create.namePlaceholder')" :maxlength="60" />
         <TextField v-model="moderatorName" :label="t('create.moderatorLabel')" :placeholder="t('create.moderatorPlaceholder')" :maxlength="30" />
-        <DeckPicker v-model="deckType" v-model:custom-raw="customRaw" />
+        <DeckPicker v-model="deckType" v-model:custom-raw="customRaw" v-model:hours-raw="hoursRaw" />
 
         <div class="form-actions">
           <GhostButton @click="router.push({ name: 'home' })">{{ t('create.cancel') }}</GhostButton>

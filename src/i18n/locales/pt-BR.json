@@ -40,7 +40,7 @@
     "tshirt": { "name": "T-shirt", "description": "Tamanhos abstratos, sem ancoragem em horas." },
     "powers-of-2": { "name": "Potências de 2", "description": "Crescimento exponencial — bom para complexidade técnica." },
     "sequential": { "name": "Sequencial 1–10", "description": "Escala linear — granularidade fina e uniforme." },
-    "hours": { "name": "Horas", "description": "Estimativa direta em horas para tarefas pequenas." },
+    "hours": { "name": "Horas", "description": "Digite minutos no editor; convertidos para horas (60 vira 1:00)." },
     "risk": { "name": "Risco", "description": "Avaliação qualitativa para spikes e análise de impacto." },
     "yes-no": { "name": "Sim / Não", "description": "Decisão binária para go/no-go." },
     "custom": "Customizado",
@@ -49,11 +49,14 @@
       "label": "Valores do baralho",
       "placeholder": "digite e tecle Enter…",
       "hint": "Enter adiciona · Backspace remove · mínimo 2 valores",
-      "removeChip": "Remover {value}"
+      "removeChip": "Remover {value}",
+      "hoursHint": "digite minutos · 60 vira 1:00 · mínimo 2 valores",
+      "invalidValues": "Valores inválidos. Use apenas números (minutos)."
     },
     "errors": {
       "needTwoValues": "Deck custom precisa de ao menos 2 valores únicos",
-      "unknownType": "Tipo de deck desconhecido: {type}"
+      "unknownType": "Tipo de deck desconhecido: {type}",
+      "invalidHoursValues": "Deck de horas aceita apenas números (minutos)"
     }
   },
   "create": {
