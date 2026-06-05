@@ -49,8 +49,14 @@ describe('customDeckStorage', () => {
 })
 
 describe('customDeckStorage — horas', () => {
+  const HOURS_KEY = 'pp:lastHoursDeck'
+
   beforeEach(() => {
     localStorage.clear()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   it('retorna string vazia quando não há nada salvo', () => {
@@ -59,7 +65,7 @@ describe('customDeckStorage — horas', () => {
 
   it('salva minutos crus como CSV e recarrega', () => {
     saveLastHoursDeck(['15', '60', '90'])
-    expect(localStorage.getItem('pp:lastHoursDeck')).toBe('15, 60, 90')
+    expect(localStorage.getItem(HOURS_KEY)).toBe('15, 60, 90')
     expect(loadLastHoursDeck()).toBe('15, 60, 90')
   })
 
