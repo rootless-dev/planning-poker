@@ -23,16 +23,21 @@ const roomName = ref('')
 const moderatorName = ref(localStorage.getItem('pp:lastName') ?? '')
 const deckType = ref<DeckType>('fibonacci')
 const customRaw = ref(loadLastCustomDeck())
+const hoursRaw = ref('')
 const submitting = ref(false)
 
 const customChipsCount = computed(() =>
   customRaw.value.split(',').map(s => s.trim()).filter(Boolean).length
+)
+const hoursChipsCount = computed(() =>
+  hoursRaw.value.split(',').map(s => s.trim()).filter(Boolean).length
 )
 
 const canSubmit = computed(() =>
   roomName.value.trim().length > 0
   && moderatorName.value.trim().length > 0
   && (deckType.value !== 'custom' || customChipsCount.value >= 2)
+  && (deckType.value !== 'hours' || hoursChipsCount.value >= 2)
   && uid.value !== null
   && !submitting.value,
 )
@@ -43,7 +48,12 @@ async function submit() {
   try {
     const deck = buildDeck({
       type: deckType.value,
-      customValues: deckType.value === 'custom' ? customRaw.value.split(',') : undefined,
+      customValues:
+        deckType.value === 'custom'
+          ? customRaw.value.split(',')
+          : deckType.value === 'hours'
+            ? hoursRaw.value.split(',')
+            : undefined,
     })
     if (deck.type === 'custom') {
       saveLastCustomDeck(deck.values)
@@ -76,7 +86,7 @@ async function submit() {
 
         <TextField v-model="roomName" :label="t('create.nameLabel')" :placeholder="t('create.namePlaceholder')" :maxlength="60" />
         <TextField v-model="moderatorName" :label="t('create.moderatorLabel')" :placeholder="t('create.moderatorPlaceholder')" :maxlength="30" />
-        <DeckPicker v-model="deckType" v-model:custom-raw="customRaw" />
+        <DeckPicker v-model="deckType" v-model:custom-raw="customRaw" v-model:hours-raw="hoursRaw" />
 
         <div class="form-actions">
           <GhostButton @click="router.push({ name: 'home' })">{{ t('create.cancel') }}</GhostButton>
