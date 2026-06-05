@@ -3,7 +3,7 @@ import { buildDeck, pickPreview, DECK_PRESETS } from '@/lib/decks'
 import { i18n } from '@/i18n'
 
 describe('DECK_PRESETS', () => {
-  it('contém os 8 presets esperados', () => {
+  it('contém os 7 presets esperados (Horas é editável, fora dos presets)', () => {
     const types = DECK_PRESETS.map(p => p.type)
     expect(types).toEqual([
       'fibonacci',
@@ -11,7 +11,6 @@ describe('DECK_PRESETS', () => {
       'tshirt',
       'powers-of-2',
       'sequential',
-      'hours',
       'risk',
       'yes-no',
     ])
@@ -54,11 +53,6 @@ describe('buildDeck — presets', () => {
     expect(deck.values).toEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '?', '☕'])
   })
 
-  it('Horas inclui ½h e 16h', () => {
-    const deck = buildDeck({ type: 'hours' })
-    expect(deck.values).toEqual(['½h', '1h', '2h', '4h', '8h', '16h', '?', '☕'])
-  })
-
   it('Risco vai de Baixo a Crítico', () => {
     const deck = buildDeck({ type: 'risk' })
     expect(deck.values).toEqual(['Baixo', 'Médio', 'Alto', 'Crítico', '?'])
@@ -95,6 +89,34 @@ describe('buildDeck — custom', () => {
 
   it('rejeita custom com 1 valor', () => {
     expect(() => buildDeck({ type: 'custom', customValues: ['7'] }))
+      .toThrow(i18n.global.t('decks.errors.needTwoValues'))
+  })
+})
+
+describe('buildDeck — horas', () => {
+  it('converte minutos em rótulos preservando a ordem', () => {
+    const deck = buildDeck({ type: 'hours', customValues: ['15', '60', '90'] })
+    expect(deck.type).toBe('hours')
+    expect(deck.values).toEqual(['15m', '1:00', '1:30'])
+  })
+
+  it('deduplica rótulos preservando a primeira ocorrência', () => {
+    const deck = buildDeck({ type: 'hours', customValues: ['60', '60', '15'] })
+    expect(deck.values).toEqual(['1:00', '15m'])
+  })
+
+  it('faz trim e ignora vazios', () => {
+    const deck = buildDeck({ type: 'hours', customValues: [' 15 ', '', '60', ' '] })
+    expect(deck.values).toEqual(['15m', '1:00'])
+  })
+
+  it('rejeita tokens não-numéricos', () => {
+    expect(() => buildDeck({ type: 'hours', customValues: ['15', '15m'] }))
+      .toThrow(i18n.global.t('decks.errors.invalidHoursValues'))
+  })
+
+  it('rejeita menos de 2 rótulos únicos', () => {
+    expect(() => buildDeck({ type: 'hours', customValues: ['60', '60'] }))
       .toThrow(i18n.global.t('decks.errors.needTwoValues'))
   })
 })

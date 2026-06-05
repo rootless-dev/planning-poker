@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { formatMinutes, isValidMinutes } from '@/lib/duration'
 
-const props = defineProps<{ modelValue: string }>()
+const props = defineProps<{ modelValue: string; hoursMode?: boolean }>()
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 
 const { t } = useI18n()
@@ -15,6 +16,16 @@ const chips = computed(() =>
     .map(s => s.trim())
     .filter(Boolean)
 )
+
+const displayChips = computed(() =>
+  chips.value.map((raw) => {
+    if (!props.hoursMode) return { raw, display: raw, invalid: false }
+    const valid = isValidMinutes(raw)
+    return { raw, display: valid ? formatMinutes(Number(raw)) : raw, invalid: !valid }
+  })
+)
+
+const hasInvalid = computed(() => displayChips.value.some(c => c.invalid))
 
 const typing = ref('')
 const inputRef = ref<HTMLInputElement | null>(null)
@@ -86,12 +97,17 @@ defineExpose({
   <div class="chip-field">
     <span class="field-label kicker">{{ t('decks.customEditor.label') }}</span>
     <div class="chip-wrap" @click="inputRef?.focus()">
-      <span v-for="(c, i) in chips" :key="`${i}-${c}`" class="chip">
-        {{ c }}
+      <span
+        v-for="(c, i) in displayChips"
+        :key="`${i}-${c.raw}`"
+        class="chip"
+        :class="{ invalid: c.invalid }"
+      >
+        {{ c.display }}
         <button
           type="button"
           class="chip-remove"
-          :aria-label="t('decks.customEditor.removeChip', { value: c })"
+          :aria-label="t('decks.customEditor.removeChip', { value: c.raw })"
           @click.stop="removeAt(i)"
         >×</button>
       </span>
@@ -106,7 +122,8 @@ defineExpose({
         @paste="onPaste"
       />
     </div>
-    <p class="chip-hint kicker">{{ t('decks.customEditor.hint') }}</p>
+    <p v-if="hoursMode && hasInvalid" class="chip-error">{{ t('decks.customEditor.invalidValues') }}</p>
+    <p class="chip-hint kicker">{{ hoursMode ? t('decks.customEditor.hoursHint') : t('decks.customEditor.hint') }}</p>
   </div>
 </template>
 
@@ -141,6 +158,14 @@ defineExpose({
   font-family: var(--font-display);
   font-size: 0.9rem;
   font-weight: 500;
+}
+.chip.invalid {
+  background: var(--color-claret);
+}
+.chip-error {
+  margin: 0;
+  font-size: 0.7rem;
+  color: var(--color-claret);
 }
 .chip-remove {
   width: 18px;

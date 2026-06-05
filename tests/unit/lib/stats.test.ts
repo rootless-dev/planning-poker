@@ -47,3 +47,29 @@ describe('computeStats', () => {
     expect(r.mode).toBe('3')
   })
 })
+
+describe('computeStats — modo horas', () => {
+  it('parseia rótulos e calcula em minutos', () => {
+    const r = computeStats(['15m', '1:00', '1:30'], 'hours')
+    expect(r.numericCount).toBe(3)
+    expect(r.average).toBe(55) // (15 + 60 + 90) / 3
+    expect(r.min).toBe(15)
+    expect(r.max).toBe(90)
+  })
+
+  it('ignora rótulos não-parseáveis', () => {
+    const r = computeStats(['1:00', '?'], 'hours')
+    expect(r.numericCount).toBe(1)
+    expect(r.average).toBe(60)
+  })
+
+  it('divergência usa limiar de 60 min', () => {
+    expect(computeStats(['1:00', '2:00'], 'hours').divergent).toBe(false) // diff 60
+    expect(computeStats(['1:00', '2:01'], 'hours').divergent).toBe(true)  // diff 61
+  })
+
+  it('moda continua sendo o rótulo mais comum', () => {
+    const r = computeStats(['1:00', '1:00', '1:30'], 'hours')
+    expect(r.mode).toBe('1:00')
+  })
+})

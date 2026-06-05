@@ -1,3 +1,5 @@
+import { parseDurationLabel } from './duration'
+
 export interface Stats {
   numericCount: number
   average: number | null
@@ -7,15 +9,15 @@ export interface Stats {
   divergent: boolean
 }
 
-export function computeStats(votes: string[]): Stats {
+export function computeStats(votes: string[], unit?: 'hours'): Stats {
   if (votes.length === 0) {
     return { numericCount: 0, average: null, mode: null, min: null, max: null, divergent: false }
   }
 
   const numericValues: number[] = []
   for (const v of votes) {
-    const n = Number(v)
-    if (Number.isFinite(n)) numericValues.push(n)
+    const n = unit === 'hours' ? parseDurationLabel(v) : Number(v)
+    if (n !== null && Number.isFinite(n)) numericValues.push(n)
   }
 
   const numericCount = numericValues.length
@@ -24,7 +26,8 @@ export function computeStats(votes: string[]): Stats {
     : null
   const min = numericCount > 0 ? Math.min(...numericValues) : null
   const max = numericCount > 0 ? Math.max(...numericValues) : null
-  const divergent = min !== null && max !== null && max - min > 5
+  const threshold = unit === 'hours' ? 60 : 5
+  const divergent = min !== null && max !== null && max - min > threshold
 
   const counts = new Map<string, number>()
   for (const v of votes) {

@@ -221,6 +221,7 @@ onBeforeUnmount(() => {
     >
       <ResultsPanel
         embedded
+        :unit="room.room.value.deck.type === 'hours' ? 'hours' : undefined"
         :seats="room.seats.value.map(s => ({ uid: s.uid, name: s.name, vote: s.vote }))"
       />
       <template #footer>

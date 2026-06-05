@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'pp:lastCustomDeck'
+const HOURS_KEY = 'pp:lastHoursDeck'
 
 export function loadLastCustomDeck(): string {
   try {
@@ -11,6 +12,22 @@ export function loadLastCustomDeck(): string {
 export function saveLastCustomDeck(values: string[]): void {
   try {
     localStorage.setItem(STORAGE_KEY, values.join(', '))
+  } catch {
+    // localStorage indisponível (modo privado/cota) — persistência é best-effort
+  }
+}
+
+export function loadLastHoursDeck(): string {
+  try {
+    return localStorage.getItem(HOURS_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+export function saveLastHoursDeck(rawTokens: string[]): void {
+  try {
+    localStorage.setItem(HOURS_KEY, rawTokens.join(', '))
   } catch {
     // localStorage indisponível (modo privado/cota) — persistência é best-effort
   }

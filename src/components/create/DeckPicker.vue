@@ -9,13 +9,24 @@ import CustomDeckEditor from './CustomDeckEditor.vue'
 const props = defineProps<{
   modelValue: DeckType
   customRaw: string
+  hoursRaw: string
 }>()
 const emit = defineEmits<{
   'update:modelValue': [value: DeckType]
   'update:customRaw': [value: string]
+  'update:hoursRaw': [value: string]
 }>()
 
 const { t } = useI18n()
+
+const isHours = computed(() => props.modelValue === 'hours')
+const isEditable = computed(() => props.modelValue === 'custom' || props.modelValue === 'hours')
+const editorModel = computed(() => (isHours.value ? props.hoursRaw : props.customRaw))
+
+function onEditorUpdate(value: string) {
+  if (isHours.value) emit('update:hoursRaw', value)
+  else emit('update:customRaw', value)
+}
 
 const activePreset = computed(() =>
   DECK_PRESETS.find(p => p.type === props.modelValue) ?? null
@@ -27,7 +38,8 @@ const previewValues = computed(() =>
 const editorRef = ref<{ focus: () => void } | null>(null)
 
 watch(() => props.modelValue, async (next, prev) => {
-  if (next === 'custom' && prev !== 'custom') {
+  const editableNow = next === 'custom' || next === 'hours'
+  if (editableNow && next !== prev) {
     await nextTick()
     editorRef.value?.focus()
   }
@@ -48,17 +60,21 @@ function onSelectChange(e: Event) {
       @change="onSelectChange"
     >
       <option v-for="p in DECK_PRESETS" :key="p.type" :value="p.type">{{ t(p.labelKey) }}</option>
+      <option value="hours">{{ t('decks.hours.name') }}</option>
       <option value="custom">{{ t('decks.custom') }}</option>
     </select>
 
     <p v-if="activePreset" class="deck-description">{{ t(activePreset.descKey) }}</p>
+    <p v-else-if="isHours" class="deck-description">{{ t('decks.hours.description') }}</p>
 
-    <DeckPreviewCards v-if="modelValue !== 'custom'" :values="previewValues" />
+    <DeckPreviewCards v-if="!isEditable" :values="previewValues" />
     <CustomDeckEditor
       v-else
       ref="editorRef"
-      :model-value="customRaw"
-      @update:model-value="(v: string) => emit('update:customRaw', v)"
+      :key="modelValue"
+      :model-value="editorModel"
+      :hours-mode="isHours"
+      @update:model-value="onEditorUpdate"
     />
   </div>
 </template>
